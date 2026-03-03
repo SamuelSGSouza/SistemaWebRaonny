@@ -3,9 +3,9 @@ Description=gunicorn daemon para SistemaWeb
 After=network.target
 
 [Service]
-User=samuel
+User=root
 Group=www-data
-WorkingDirectory=/home/samuel/SistemaWeb
+WorkingDirectory=/root/SistemaWeb
 ExecStart=/usr/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 settings.wsgi:application
 
 [Install]

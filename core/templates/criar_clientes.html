@@ -144,7 +144,59 @@
                             </button>
                         </div>
                     </form>
+                    
                 </div>
+                {% if object %}
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Propostas para o Cliente</h5>
+    </div>
+    <div class="card-body">
+        {% if propostas %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Título</th>
+                            <th>Modelo</th>
+                            <th>Status</th>
+                            <th>Data de Criação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prop in propostas %}
+                            <tr>
+                                <td>{{ prop.titulo }}</td>
+                                <td>{{ prop.modelo }}</td>
+                                <td>
+                                    {% if prop.status == 'aprovado' %}
+                                        <span class="badge bg-success">Aprovado</span>
+                                    {% elif prop.status == 'pendente' %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% elif prop.status == 'rejeitado' %}
+                                        <span class="badge bg-danger">Rejeitado</span>
+                                    {% else %}
+                                        {{ prop.status }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ prop.criacao|date:"d/m/Y" }}</td>
+                                <td>
+                                    <a href="{% url 'download_docx' %}?id_proposta={{prop.id}}&formato=pdf" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Visualizar
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">Nenhuma proposta encontrada para este cliente.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
             </div>
         </div>
     </div>

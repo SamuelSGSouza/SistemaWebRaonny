@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block page_body %}
+    
+    <main class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-2 small">
+                    <li class="breadcrumb-item"><a href="{% url 'propostas' %}">Propostas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{% if object %}Edição{% else %}Nova{% endif %}</li>
+                </ol>
+            </nav>
+            <h2 class="h3 font-weight-bold mb-1 text-dark">
+                {% if object %}Editar Modelo{% else %}Novo Modelo{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if object %}
+                    Atualize as informações do Modelo selecionada abaixo.
+                {% else %}
+                    Preencha os dados básicos para criar um novo modelo.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <a href="{% url 'modelos' %}" class="btn btn-link text-secondary mr-3 shadow-none">
+                <i class="fas fa-chevron-left mr-1"></i> Voltar
+            </a>
+            <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                style="width:42px; height:42px; border-radius: 50%; background-color: #e7f0ff; font-weight:700; font-size: 0.9rem;">
+                AD
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content -->
+    <div class="row justify-content-center">
+        <div class="col-12 ">
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="card-title mb-0 font-weight-bold">
+                        <i class="fas fa-user-tie mr-2"></i>
+                        {% if object %}
+                            Editar Modelo - {{ object.titulo }} 
+                        {% else %}
+                            Cadastrar Modelo
+                        {% endif %}
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" action="" novalidate enctype="multipart/form-data">
+    {% include 'partials/_messages.html' %}
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        Por favor, corrija os erros abaixo.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- TÍTULO -->
+        <div class="col-12 mb-3">
+            <label for="{{ form.titulo.id_for_label }}" class="font-weight-bold">
+                <i class="fas fa-heading mr-1 text-muted"></i> Título *
+            </label>
+
+            {{ form.titulo }}
+
+            {% if form.titulo.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.titulo.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <small class="form-text text-muted">
+                Digite um título descritivo para o Modelo
+            </small>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Páginas -->
+        <div class="col-4 mb-3">
+            <label for="{{ form.numero_pagina_servicos.id_for_label }}" class="font-weight-bold">
+                <i class="fas fa-file-alt mr-1 text-muted"></i> Página com tabela de Serviços *
+            </label>
+
+            {{ form.numero_pagina_servicos }}
+
+            {% if form.numero_pagina_servicos.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.numero_pagina_servicos.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-4 mb-3">
+            <label for="{{ form.numero_pagina_equipamentos.id_for_label }}" class="font-weight-bold">
+                <i class="fas fa-file-alt mr-1 text-muted"></i> Página da tabela de Equipamentos *
+            </label>
+
+            {{ form.numero_pagina_equipamentos }}
+
+            {% if form.numero_pagina_equipamentos.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.numero_pagina_equipamentos.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-4 mb-3">
+            <label for="{{ form.numero_pagina_adicionais.id_for_label }}" class="font-weight-bold">
+                <i class="fas fa-file-alt mr-1 text-muted"></i> Página com tabela de Variáveis *
+            </label>
+
+            {{ form.numero_pagina_adicionais }}
+
+            {% if form.numero_pagina_adicionais.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.numero_pagina_adicionais.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Campo de arquivo continua manual, pois não está no ModelForm -->
+    <div class="row">
+        <div class="col-12 mb-3">
+            <label class="font-weight-bold">
+                <i class="fas fa-file mr-1 text-muted"></i>
+                {% if object %}Novo {% endif %} Arquivo PPTX de Modelo *
+            </label>
+
+            <input type="file"
+                   class="form-control"
+                   name="arquivo"
+                   required>
+        </div>
+    </div>
+
+    {% if object %}
+    <div class="row">
+        <div class="col-12 mb-3">
+            <label class="font-weight-bold">
+                <i class="fas fa-eye mr-1 text-muted"></i>
+                Clique <a target="_blank" href="{% url 'download_modelo' %}?id_modelo={{ object.id }}">AQUI</a>
+                para visualizar o Arquivo Atual
+            </label>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AÇÕES -->
+    <div class="form-actions border-top pt-4 mt-3">
+        <div class="d-flex justify-content-end">
+            <a href="{% url 'propostas' %}" class="btn btn-outline-secondary mr-3">
+                <i class="fas fa-times mr-2"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save mr-2"></i>
+                {% if object %}
+                    Alterar Modelo
+                {% else %}
+                    Criar Modelo
+                {% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 ">
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="card-title mb-0 font-weight-bold">
+                        <i class="fas fa-user-tie mr-2"></i>
+                        Informações Importantes sobre modelos
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <h6>* Caso o modelo não possua uma das tabelas de serviço, equipamento ou variáveis, basta manter o número da página como 0</h6>
+                    <h6>* O modelo pode possuir as seguinte variáveis para serem substituidas no padrão <strong class="text-primary">variavel</strong> -> <strong>valor real</strong></h6>
+                    <h6>
+                        {% verbatim %}
+                            <strong class="text-primary">{{cnpj_empresa}}</strong> -> <strong>CNPJ da Empresa</strong><br>
+                            <strong class="text-primary">{{nome_empresa}}</strong> -> <strong>Nome da Empresa</strong><br>
+                            <strong class="text-primary">{{data}}</strong> -> <strong>Data Atual</strong><br>
+                            <strong class="text-primary">{{nome_responsavel}}</strong> -> <strong>Nome da pessoa de contato na empresa</strong><br>
+                            <strong class="text-primary">{{sexo_responsavel}}</strong> -> <strong>Sexo da pessoa de contato na empresa</strong><br>
+                            <strong class="text-primary">{{email_responsavel}}</strong> -> <strong>Email da pessoa de contato na empresa</strong><br>
+                            <strong class="text-primary">{{telefone_empresa}}</strong> -> <strong>Telefone da empresa</strong><br>
+                            <strong class="text-primary">{{cidade_empresa}}</strong> -> <strong>Cidade da empresa</strong><br>
+                            <strong class="text-primary">{{uf_empresa}}</strong> -> <strong>UF da empresa</strong><br>
+                            <strong class="text-primary">{{valor_dolar}}</strong> -> <strong>Valor do Dólar no dia</strong><br>
+                            <strong class="text-primary">{{numero_proposta}}</strong> -> <strong>Código da proposta gerado automaticamente pelo sistema</strong><br>
+                            <strong class="text-primary">{{tempo_de_contrato}}</strong> -> <strong>Tempo de contrato da proposta em meses</strong><br>
+                            <strong class="text-primary">{{nome_usuario_responsavel}}</strong> -> <strong>Nome do usuário responsável pela proposta</strong><br>
+                            <strong class="text-primary">{{telefone_usuario_responsavel}}</strong> -> <strong>Telefone do usuário responsável pela proposta</strong><br>
+                            <strong class="text-primary">{{email_usuario_responsavel}}</strong> -> <strong>Email do usuário responsável pela proposta</strong><br>
+                            <strong class="text-primary">{{cargo_usuario_responsavel}}</strong> -> <strong>Cargo do usuário responsável pela proposta</strong><br>
+                            <strong class="text-primary">{{observacao_tabela_variavel}}</strong> -> <strong>Texto de Observação que ficará logo abaixo da tabela de variáveis</strong><br>
+                            <strong class="text-primary">{{observacao_tabela_equipamento}}</strong> -> <strong>Texto de Observação que ficará logo abaixo da tabela de equipamento</strong><br>
+                            <strong class="text-primary">{{observacao_tabela_servico}}</strong> -> <strong>Texto de Observação que ficará logo abaixo da tabela de serviços</strong><br>
+                        {% endverbatim %}
+                    </h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+

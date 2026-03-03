@@ -1,0 +1,424 @@
+{% extends 'base.html' %}
+
+{% block page_body %}
+    
+    <main class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-2 small">
+                    <li class="breadcrumb-item"><a href="{% url 'propostas' %}">Propostas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{% if object %}Edição{% else %}Nova{% endif %}</li>
+                </ol>
+            </nav>
+            <h2 class="h3 font-weight-bold mb-1 text-dark">
+                {% if object %}Editar Proposta{% else %}Nova Proposta{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if object %}
+                    Atualize as informações da proposta selecionada abaixo.
+                {% else %}
+                    Preencha os dados básicos para gerar um novo documento comercial.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <a href="{% url 'propostas' %}" class="btn btn-link text-secondary mr-3 shadow-none">
+                <i class="fas fa-chevron-left mr-1"></i> Voltar
+            </a>
+            <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                style="width:42px; height:42px; border-radius: 50%; background-color: #e7f0ff; font-weight:700; font-size: 0.9rem;">
+                AD
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content -->
+    <div class="row justify-content-center">
+        <div class="col-12 ">
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="card-title mb-0 font-weight-bold">
+                        <i class="fas fa-user-tie mr-2"></i>
+                        {% if object %}
+                            Editar Cliente - {{ object.nome }}
+                        {% else %}
+                            Cadastrar Nova Proposta
+                        {% endif %}
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" action="{% url 'pre_proposta' %}" novalidate>
+                        {% include 'partials/_messages.html' %}
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            Por favor, corrija os erros abaixo.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- TÍTULO -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.titulo.id_for_label }}" class="font-weight-bold">
+                                    <i class="fas fa-heading mr-1 text-muted"></i> Título *
+                                </label>
+                                
+                                {% if form.titulo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.titulo.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <input type="text" 
+                                       class="form-control {% if form.titulo.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.titulo.id_for_label }}" 
+                                       name="titulo" 
+                                       value="{{ titulo }}" 
+                                       placeholder="Título ou identificação da proposta"
+                                       required>
+                                <small class="form-text text-muted">
+                                    Digite um título descritivo para a proposta
+                                </small>
+                            </div>
+
+                            <!-- CLIENTE -->
+                            <div class="col-md-6 mb-3">
+                                <label for="clienteSelect" class="form-label fw-bold">
+                                    <i class="fas fa-building me-1 text-muted"></i> CNPJ do Cliente *
+                                </label>
+
+                                <select class="form-select {% if form.cliente.errors %}is-invalid{% endif %}" 
+                                        id="clienteSelect" 
+                                        name="cliente" 
+                                        required
+                                        data-bs-placeholder="Selecione ou digite para filtrar">
+                                    <option value=""></option>
+                                    {% for cliente in clientes %}
+                                        <option value="{{ cliente.cnpj }}" 
+                                                {% if cliente.cnpj == cnpj %}selected{% endif %}>
+                                            {{ cliente.cnpj }} - {{ cliente.nome }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                {% if form.cliente.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.cliente.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Digite para filtrar ou selecione um cliente
+                                </div>
+
+                                <script>
+                                    // Solução com JavaScript puro para filtro
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const select = document.getElementById('clienteSelect');
+                                        const options = Array.from(select.options).slice(1); // Exclui primeira opção vazia
+                                        
+                                        // Cria input de busca
+                                        const searchInput = document.createElement('input');
+                                        searchInput.type = 'text';
+                                        searchInput.className = 'form-control mb-2';
+                                        searchInput.placeholder = 'Digite para filtrar...';
+                                        searchInput.style.width = '100%';
+                                        
+                                        // Insere input antes do select
+                                        select.parentNode.insertBefore(searchInput, select);
+                                        
+                                        // Esconde o select original
+                                        select.style.display = 'none';
+                                        
+                                        // Cria div para resultados
+                                        const resultsDiv = document.createElement('div');
+                                        resultsDiv.className = 'border rounded p-2';
+                                        resultsDiv.style.maxHeight = '200px';
+                                        resultsDiv.style.overflowY = 'auto';
+                                        select.parentNode.insertBefore(resultsDiv, select.nextSibling);
+                                        
+                                        // Função para renderizar resultados
+                                        function renderResults(filter = '') {
+                                            resultsDiv.innerHTML = '';
+                                            const filterLower = filter.toLowerCase();
+                                            
+                                            const filtered = options.filter(opt => 
+                                                opt.text.toLowerCase().includes(filterLower)
+                                            );
+                                            
+                                            if (filtered.length === 0) {
+                                                const noResult = document.createElement('div');
+                                                noResult.className = 'text-muted p-2 text-center';
+                                                noResult.textContent = 'Nenhum cliente encontrado';
+                                                resultsDiv.appendChild(noResult);
+                                                return;
+                                            }
+                                            
+                                            filtered.forEach(option => {
+                                                const div = document.createElement('div');
+                                                div.className = 'p-2 border-bottom hover-bg-light';
+                                                div.style.cursor = 'pointer';
+                                                div.textContent = option.text;
+                                                
+                                                div.addEventListener('click', () => {
+                                                    select.value = option.value;
+                                                    searchInput.value = option.text;
+                                                    resultsDiv.style.display = 'none';
+                                                    
+                                                    // Disparar evento de change
+                                                    const event = new Event('change');
+                                                    select.dispatchEvent(event);
+                                                });
+                                                
+                                                resultsDiv.appendChild(div);
+                                            });
+                                        }
+                                        
+                                        // Event listeners
+                                        searchInput.addEventListener('focus', () => {
+                                            resultsDiv.style.display = 'block';
+                                            renderResults(searchInput.value);
+                                        });
+                                        
+                                        searchInput.addEventListener('input', (e) => {
+                                            renderResults(e.target.value);
+                                        });
+                                        
+                                        searchInput.addEventListener('blur', () => {
+                                            // Esconde resultados após um pequeno delay
+                                            setTimeout(() => {
+                                                resultsDiv.style.display = 'none';
+                                            }, 200);
+                                        });
+                                        
+                                        // Renderiza todos inicialmente
+                                        renderResults();
+                                    });
+                                    </script>
+                            </div>
+
+
+                            <div class="col-md-6 mb-3">
+                                <label for="modeloSelect" class="form-label fw-bold">
+                                    <i class="fas fa-building me-1 text-muted"></i> Modelo *
+                                </label>
+
+                                <select class="form-select {% if form.cliente.errors %}is-invalid{% endif %}" 
+                                        id="modeloSelect" 
+                                        name="modelo" 
+                                        required
+                                        data-bs-placeholder="Selecione ou digite para filtrar">
+                                    <option value=""></option>
+                                    {% for modelo in modelos %}
+                                        <option value="{{ modelo.titulo }}" 
+                                                {% if modelo.titulo == modelo %}selected{% endif %}>
+                                            {{ modelo.id }} - {{ modelo.titulo }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                {% if form.modelo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.modelo.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Digite para filtrar ou selecione um modelo
+                                </div>
+
+                                <script>
+                                    // Solução com JavaScript puro para filtro
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const select = document.getElementById('modeloSelect');
+                                        const options = Array.from(select.options).slice(1); // Exclui primeira opção vazia
+                                        
+                                        // Cria input de busca
+                                        const searchInput = document.createElement('input');
+                                        searchInput.type = 'text';
+                                        searchInput.className = 'form-control mb-2';
+                                        searchInput.placeholder = 'Digite para filtrar...';
+                                        searchInput.style.width = '100%';
+                                        
+                                        // Insere input antes do select
+                                        select.parentNode.insertBefore(searchInput, select);
+                                        
+                                        // Esconde o select original
+                                        select.style.display = 'none';
+                                        
+                                        // Cria div para resultados
+                                        const resultsDiv = document.createElement('div');
+                                        resultsDiv.className = 'border rounded p-2';
+                                        resultsDiv.style.maxHeight = '200px';
+                                        resultsDiv.style.overflowY = 'auto';
+                                        select.parentNode.insertBefore(resultsDiv, select.nextSibling);
+                                        
+                                        // Função para renderizar resultados
+                                        function renderResults(filter = '') {
+                                            resultsDiv.innerHTML = '';
+                                            const filterLower = filter.toLowerCase();
+                                            
+                                            const filtered = options.filter(opt => 
+                                                opt.text.toLowerCase().includes(filterLower)
+                                            );
+                                            
+                                            if (filtered.length === 0) {
+                                                const noResult = document.createElement('div');
+                                                noResult.className = 'text-muted p-2 text-center';
+                                                noResult.textContent = 'Nenhum modelo encontrado';
+                                                resultsDiv.appendChild(noResult);
+                                                return;
+                                            }
+                                            
+                                            filtered.forEach(option => {
+                                                const div = document.createElement('div');
+                                                div.className = 'p-2 border-bottom hover-bg-light';
+                                                div.style.cursor = 'pointer';
+                                                div.textContent = option.text;
+                                                
+                                                div.addEventListener('click', () => {
+                                                    select.value = option.value;
+                                                    searchInput.value = option.text;
+                                                    resultsDiv.style.display = 'none';
+                                                    
+                                                    // Disparar evento de change
+                                                    const event = new Event('change');
+                                                    select.dispatchEvent(event);
+                                                });
+                                                
+                                                resultsDiv.appendChild(div);
+                                            });
+                                        }
+                                        
+                                        // Event listeners
+                                        searchInput.addEventListener('focus', () => {
+                                            resultsDiv.style.display = 'block';
+                                            renderResults(searchInput.value);
+                                        });
+                                        
+                                        searchInput.addEventListener('input', (e) => {
+                                            renderResults(e.target.value);
+                                        });
+                                        
+                                        searchInput.addEventListener('blur', () => {
+                                            // Esconde resultados após um pequeno delay
+                                            setTimeout(() => {
+                                                resultsDiv.style.display = 'none';
+                                            }, 200);
+                                        });
+                                        
+                                        // Renderiza todos inicialmente
+                                        renderResults();
+                                    });
+                                    </script>
+                            </div>
+
+                            
+
+                        </div>
+
+                        <!-- AÇÕES -->
+                        <div class="form-actions border-top pt-4 mt-3">
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'propostas' %}" class="btn btn-outline-secondary mr-3">
+                                    <i class="fas fa-times mr-2"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-save mr-2"></i> Continuar Criação de Proposta
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Máscara para CNPJ
+        const cnpjInput = document.getElementById('{{ form.cnpj.id_for_label }}');
+        if (cnpjInput) {
+            cnpjInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 14) value = value.substring(0, 14);
+                
+                if (value.length > 12) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+                } else if (value.length > 8) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})/, "$1.$2.$3/$4");
+                } else if (value.length > 5) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})/, "$1.$2.$3");
+                } else if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d{3})/, "$1.$2");
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
+        // Validação do formulário
+        const form = document.querySelector('.client-form');
+        form.addEventListener('submit', function(e) {
+            let valid = true;
+            
+            // Validar campos obrigatórios
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    valid = false;
+                    field.style.borderColor = '#dc2626';
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+            }
+        });
+        
+        // Feedback visual nos campos
+        const formInputs = form.querySelectorAll('input, select');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    });
+</script>
+<script>
+function filterSelect(input, selectId) {
+    const filter = input.value.toLowerCase();
+    const select = document.getElementById(selectId);
+    const options = select.options;
+
+    for (let i = 0; i < options.length; i++) {
+        const txt = options[i].text.toLowerCase();
+        options[i].style.display = txt.includes(filter) ? '' : 'none';
+    }
+}
+</script>
+{% endblock %}
+

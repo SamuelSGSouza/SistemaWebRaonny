@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{%  block page_body %}
+    
+    <main class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+            <h2 class="h3 font-weight-bold text-dark mb-1">Gerenciamento de Logs</h2>
+            <p class="text-muted small mb-0">Visualize, edite e acompanhe sua base de logs.</p>
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <form action="" method="post" class="mr-3">
+                {% csrf_token %}
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-right-0 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="search_value" class="form-control border-left-0 shadow-none" placeholder="Buscar log..." >
+                </div>
+            </form>
+
+            
+            <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                 style="width:40px; height:40px; border-radius: 50%; background-color: #e7f0ff; font-weight:700;">
+                AD
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom-0">
+            <h5 class="mb-0 text-dark font-weight-bold">Lista de Logs</h5>
+        </div>
+
+        
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="clientesTable">
+                <thead class="thead-light">
+                    <tr class="small text-uppercase font-weight-bold text-muted">
+                        <th class="border-0 px-4">ID</th>
+                        <th class="border-0">Usuário</th>
+                        <th class="border-0">Ação</th>
+                        <th class="border-0 text-center">Data e Hora</th>
+                    </tr>
+                </thead>
+                <tbody id="clientesTableBody">
+                    {% for cliente in logs %}
+                    <tr data-status="{{ cliente.status }}">
+                        <td class="align-middle px-4 text-muted small">#{{ cliente.id }}</td>
+                        <td class="align-middle font-weight-bold text-dark">{{ cliente.user }}</td>
+                        <td class="align-middle text-secondary font-italic small">{{ cliente.acao }}</td>
+                        
+                        <td class="align-middle small text-muted">
+                            {{ cliente.momento|date:"d/m/Y" }}<br>
+                            <span class="text-xs">{{ cliente.momento|date:"H:i" }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open fa-3x mb-3 d-block opacity-50"></i>
+                            Nenhum cliente encontrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card-footer bg-white border-top-0 py-3">
+            {% include 'partials/_pagination.html' %}
+        </div>
+    </div>
+</main>
+
+{% endblock %}

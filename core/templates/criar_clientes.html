@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block page_body %}
+   <main class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-2 small">
+                    <li class="breadcrumb-item"><a href="{% url 'clientes' %}">Clientes</a></li>
+                    <li class="breadcrumb-item active">{% if object %}Edição{% else %}Novo{% endif %}</li>
+                </ol>
+            </nav>
+            <h2 class="h3 font-weight-bold mb-1 text-dark">
+                {% if object %}Editar Cliente{% else %}Novo Cliente{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if object %}Atualize os dados cadastrais da empresa selecionada.{% else %}Insira as informações para cadastrar uma nova conta.{% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <a href="{% url 'clientes' %}" class="btn btn-link text-primary mr-3 shadow-none">
+                <i class="fas fa-chevron-left mr-1"></i> Voltar à Lista
+            </a>
+            <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                 style="width:42px; height:42px; border-radius: 50%; background-color: #e7f0ff; font-weight:700;">
+                AD
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 text-white font-weight-bold">
+                        <i class="fas fa-user-tie text-white mr-2"></i>
+                        {% if object %}
+                            Ficha Cadastral - {{ object.nome }}
+                        {% else %}
+                            Formulário de Cadastro
+                        {% endif %}
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-light border-left border-danger mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-exclamation-circle text-danger mr-3 mt-1"></i>
+                                <div>
+                                    <h6 class="text-danger font-weight-bold mb-1">Atenção</h6>
+                                    <p class="small text-muted mb-0">Verifique os campos destacados em vermelho antes de salvar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold small mb-3" style="letter-spacing: 0.05rem;">
+                                <i class="fas fa-building mr-1"></i> Dados Institucionais
+                            </h6>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="small font-weight-bold text-primary">Razão Social / Nome da Empresa *</label>
+                                    {{ form.nome }}
+                                    {% if form.nome.errors %}<div class="text-danger small mt-1">{{ form.nome.errors }}</div>{% endif %}
+                                    <small class="form-text text-muted">Nome oficial registrado no CNPJ.</small>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">CNPJ *</label>
+                                    {{ form.cnpj }}
+                                    {% if form.cnpj.errors %}<div class="text-danger small mt-1">{{ form.cnpj.errors }}</div>{% endif %}
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Status do Cadastro</label>
+                                    <div class="custom-select-wrapper">
+                                        {{ form.status }}
+                                    </div>
+                                    {% if form.status.errors %}<div class="text-danger small mt-1">{{ form.status.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold small mb-3" style="letter-spacing: 0.05rem;">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Localização e Contato
+                            </h6>
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label class="small font-weight-bold text-primary">Telefone Principal</label>
+                                    {{ form.telefone }}
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <label class="small font-weight-bold text-primary">Cidade</label>
+                                    {{ form.cidade }}
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label class="small font-weight-bold text-primary">UF</label>
+                                    {{ form.uf }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-5">
+                            <h6 class="text-uppercase text-muted font-weight-bold small mb-3" style="letter-spacing: 0.05rem;">
+                                <i class="fas fa-user mr-1"></i> Responsável Direto
+                            </h6>
+                            <div class="row">
+                                <div class="form-group col-md-2">
+                                    <label class="small font-weight-bold text-primary">Tratamento</label>
+                                    {{ form.tratamento_responsavel }}
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <label class="small font-weight-bold text-primary">Nome do Responsável</label>
+                                    {{ form.nome_responsavel }}
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <label class="small font-weight-bold text-primary">E-mail Corporativo</label>
+                                    {{ form.email_responsavel }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-light border-0 px-0 rounded d-flex justify-content-between p-3">
+                            <a href="{% url 'clientes' %}" class="btn btn-light text-primary font-weight-bold px-4">
+                                <i class="fas fa-times mr-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary shadow px-5 font-weight-bold">
+                                {% if object %}
+                                    <i class="fas fa-save mr-2"></i> Atualizar Cadastro
+                                {% else %}
+                                    <i class="fas fa-check-circle mr-2"></i> Confirmar Cadastro
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Máscara para CNPJ
+        const cnpjInput = document.getElementById('{{ form.cnpj.id_for_label }}');
+        if (cnpjInput) {
+            cnpjInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 14) value = value.substring(0, 14);
+                
+                if (value.length > 12) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+                } else if (value.length > 8) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})/, "$1.$2.$3/$4");
+                } else if (value.length > 5) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})/, "$1.$2.$3");
+                } else if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d{3})/, "$1.$2");
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
+        // Validação do formulário
+        const form = document.querySelector('.client-form');
+        form.addEventListener('submit', function(e) {
+            let valid = true;
+            
+            // Validar campos obrigatórios
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    valid = false;
+                    field.style.borderColor = '#dc2626';
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+            }
+        });
+        
+        // Feedback visual nos campos
+        const formInputs = form.querySelectorAll('input, select');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+

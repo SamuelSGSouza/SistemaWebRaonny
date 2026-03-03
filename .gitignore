@@ -1,0 +1,8 @@
+comandos_ssh
+deploy.py
+db.sqlite3
+SistemaWeb
+ConfigDB.sql
+ConfigRaonnyOS.sh
+.env
+*.pyc

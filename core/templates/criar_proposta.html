@@ -1,0 +1,542 @@
+{% extends 'base.html' %}
+
+{% block page_body %}    
+    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-2 small">
+                    <li class="breadcrumb-item"><a href="{% url 'propostas' %}">Propostas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{% if object %}Edição{% else %}Nova{% endif %}</li>
+                </ol>
+            </nav>
+            <h2 class="h3 font-weight-bold mb-1 text-dark">
+                {% if object %}Editar Proposta{% else %}Nova Proposta{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if object %}
+                    Atualize as informações da proposta selecionada abaixo.
+                {% else %}
+                    Preencha os dados básicos para gerar um novo documento comercial.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <a href="{% url 'propostas' %}" class="btn btn-link text-primary mr-3 shadow-none">
+                <i class="fas fa-chevron-left mr-1"></i> Voltar
+            </a>
+            <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                style="width:42px; height:42px; border-radius: 50%; background-color: #e7f0ff; font-weight:700; font-size: 0.9rem;">
+                AD
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-header bg-primary text-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0  font-weight-bold">
+                        <i class="fas fa-file-invoice text-white mr-2"></i>
+                        {% if object %}
+                            {{ object.titulo }}
+                        {% else %}
+                            Informações da Proposta
+                        {% endif %}
+                    </h5>
+                </div>
+                {% if object %}
+                <div class="col-auto">
+                    <span class="badge badge-soft-success px-3 py-2">Edição Ativa</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <form method="post" action="{% url 'criar_proposta' %}">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-light border-left border-danger mb-4">
+                    <div class="d-flex">
+                        <i class="fas fa-exclamation-circle text-danger mr-3 mt-1"></i>
+                        <div>
+                            <h6 class="text-danger font-weight-bold mb-1">Atenção</h6>
+                            <p class="small text-muted mb-0">Por favor, corrija os erros sinalizados no formulário para prosseguir.</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted font-weight-bold small mb-3" style="letter-spacing: 0.05rem;">
+                        Informações Gerais
+                    </h6>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label class="small font-weight-bold text-primary">Título da Proposta</label>
+                            <input type="text" class="form-control form-control-prepended bg-light border-0 shadow-none" 
+                                value="{{ titulo }}" name="titulo" readonly>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label class="small font-weight-bold text-primary">CNPJ do Cliente</label>
+                            <input class="form-control bg-light border-0" value="{{ cliente }}" name="cliente" readonly>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label class="small font-weight-bold text-primary">Nome do Cliente</label>
+                            <input class="form-control bg-light border-0" value="{{ nome_cliente }}" name="nome_cliente" readonly>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label class="small font-weight-bold text-primary">Modelo de Documento</label>
+                            <input class="form-control bg-light border-0" value="{{ modelo.titulo }}" name="modelo" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-5">
+                    <div class="form-group col-md-4 mb-0">
+                        <label class="small font-weight-bold text-primary">Cotação do Dólar (R$)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0 text-muted">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </span>
+                            </div>
+                            <input type="number" step="0.001" class="form-control border-left-0 pl-0" 
+                                name="valor_dolar" placeholder="0,000" id="valor_dolar">
+                                
+                            <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                            fetch('https://cdn.moneyconvert.net/api/latest.json')
+                                .then(response => response.json())
+                                .then(data => {
+                                const dolarParaBRL = data.rates.BRL;
+                                const el = document.getElementById('valor_dolar');
+
+                                if (el) {
+                                    el.value = dolarParaBRL.toFixed(2);
+                                }
+                                })
+                                .catch(error => {
+                                console.error('Erro ao buscar cotação:', error);
+                                const el = document.getElementById('valor_dolar');
+                                if (el) {
+                                    el.value = 'erro';
+                                }
+                                });
+                            });
+                            </script>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4 mb-0">
+                        <label class="small font-weight-bold text-primary">Tempo de Contrato (meses)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0 text-muted">
+                                    <i class="fas fa-time"></i>
+                                </span>
+                            </div>
+                            <input type="tel"  class="form-control border-left-0 pl-0" 
+                                name="tempo_de_contrato" placeholder="24" value="24">
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8 text-right mt-4 mt-md-0 pt-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm px-3" data-toggle="modal" data-target="#modal-iframe">
+                            <i class="fas fa-plus-circle mr-1"></i> Cadastrar Item
+                        </button>
+                    </div>
+                </div>
+
+                {% for bloco in blocos %}
+                        <div class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-uppercase text-primary font-weight-bold small mb-0" style="letter-spacing: 0.05rem;">
+                                    <i class="fas fa-list-ul mr-2"></i> {{ bloco }}s Selecionados
+                                </h6>
+                                <button type="button" class="btn btn-sm btn-primary shadow-sm px-3" id="{{ bloco }}-add-btn">
+                                    <i class="fas fa-plus mr-1 small"></i> Adicionar
+                                </button>
+                            </div>
+
+                            <div class="table-responsive shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                                <table class="table table-hover border mb-0 bg-white">
+                                    <thead class="thead-light">
+                                        <tr class="small text-uppercase font-weight-bold">
+                                            <th class="border-0" width="40%">{{ bloco|capfirst }}</th>
+                                            <th class="border-0" width="20%">Valor Unitário</th>
+                                            <th class="border-0" width="10%">Qtd</th>
+                                            <th class="border-0" width="20%">Subtotal</th>
+                                            <th class="border-0 text-center" width="10%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="{{ bloco }}-container" class="text-dark">
+                                        </tbody>
+                                    <tfoot>
+                                        <tr class="bg-light font-weight-bold">
+                                            <td colspan="3" class="text-right border-0 py-3">Total de {{ bloco }}s:</td>
+                                            <td class="border-0 py-3 text-primary" id="{{ bloco }}-total-amount">R$ 0,00</td>
+                                            <td class="border-0"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <input type="hidden" name="{{ bloco }}s_selecionados" id="{{ bloco }}-input-hidden">
+
+                            <div class="form-group col-md-12 mb-0">
+                                <label class="small font-weight-bold text-primary">Observações para a tabela {{bloco}} (deixe em branco caso não seja necessário)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white border-right-0 text-muted">
+                                            <i class="fas fa-time"></i>
+                                        </span>
+                                    </div>
+                                    <textarea name="observacoes_{{bloco}}" id="" class="form-control border-left-0 pl-0"></textarea>
+                                    
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 mb-0">
+                                <label class="small font-weight-bold text-primary" for="tipo_cobranca_{{bloco}}">Marque aqui se o valor cobrado for único e não mensal</label> <input name="tipo_cobranca_{{bloco}}" id="tipo_cobranca_{{bloco}}" class="" type="checkbox"/>
+                                
+                            </div>
+                        </div>
+                {% endfor %}
+
+                <div class="card-footer bg-white border-top-0 px-0 pt-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-light text-primary font-weight-bold px-4" onclick="history.back()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary shadow px-5 font-weight-bold">
+                        <i class="fas fa-check-circle mr-2"></i> Salvar Proposta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% for bloco in blocos %}
+        <!-- Modal específico do bloco -->
+        <div class="modal fade" id="modal-{{ bloco }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel-{{ bloco }}" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content border-0 shadow-lg rounded-lg overflow-hidden">
+
+                    <!-- Header -->
+                    <div class="modal-header bg-primary text-white">
+                        <div class="d-flex align-items-center">
+                            <div class="mr-3 d-flex align-items-center justify-content-center rounded-circle bg-white text-primary"
+                                style="width:40px;height:40px;">
+                                <i class="fas fa-concierge-bell"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title text-capitalize mb-0" id="modalLabel-{{ bloco }}">
+                                    Selecionar {{ bloco }}
+                                </h5>
+                                <small class="text-white-50">
+                                    Escolha um ou mais itens para adicionar
+                                </small>
+                            </div>
+                        </div>
+
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body p-4">
+                        
+
+                        <!-- Lista -->
+                        <div class="services-list border rounded-lg p-3 bg-light"
+                            id="{{ bloco }}-list-modal"
+                            style="max-height: 50vh; overflow-y: auto;">
+                            <!-- Lista de {{ bloco }}s será carregada aqui -->
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer bg-white d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Selecione os itens desejados e confirme
+                        </small>
+
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                <i class="fas fa-times mr-1"></i> Cancelar
+                            </button>
+                            <button type="button"
+                                    class="btn btn-primary ml-2"
+                                    id="{{ bloco }}-confirm-btn">
+                                <i class="fas fa-check mr-1"></i> Adicionar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    {% endfor %}
+
+    <div class="modal fade" id="modal-iframe" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title" id="modalLabel">
+                    <i class="fas fa-plus-circle mr-2"></i>Novo Item
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form-servico-ajax" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div id="form-errors" class="alert alert-danger d-none"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="font-weight-bold">{{ form.titulo.label }}</label>
+                            {{ form.titulo }}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="font-weight-bold">{{ form.descricao.label }}</label>
+                            {{ form.descricao }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="font-weight-bold">{{ form.valor_servico.label }}</label>
+                            {{ form.valor_servico }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="font-weight-bold">{{ form.tipo.label }}</label>
+                            {{ form.tipo }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="font-weight-bold">{{ form.status.label }}</label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm" id="btn-save">
+                        <i class="fas fa-save mr-1"></i> Salvar Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $('#form-servico-ajax').on('submit', function(e) {
+        e.preventDefault(); // Impede o recarregamento da página
+        
+        let $form = $(this);
+        let $btn = $('#btn-save');
+        let originalText = $btn.html();
+
+        // Feedback visual de carregamento
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Salvando...');
+
+        $.ajax({
+            url: "{% url 'url_ajax_servico' %}", // Substitua pelo nome da sua URL
+            type: "POST",
+            data: $form.serialize(),
+            success: function(response) {
+                // Sucesso: Fecha o modal, limpa o form e avisa o usuário
+                $('#modal-iframe').modal('hide');
+                $form[0].reset();
+                alert(response.message);
+                
+                // Opcional: Recarregar apenas a parte da tabela de serviços
+                // location.reload(); 
+            },
+            error: function(xhr) {
+                // Erro: Exibe os erros de validação no modal
+                let errors = JSON.parse(xhr.responseJSON.errors);
+                let errorMsg = "Erro ao salvar: ";
+                
+                // Itera sobre os erros para montar uma mensagem
+                $.each(errors, function(field, errorList) {
+                    errorMsg += `${errorList[0].message} `;
+                    // Adiciona classe de erro nos inputs
+                    $(`[name=${field}]`).addClass('is-invalid');
+                });
+
+                $('#form-errors').removeClass('d-none').text(errorMsg);
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Limpa os erros ao fechar ou reabrir o modal
+    $('#modal-iframe').on('hidden.bs.modal', function () {
+        $('.is-invalid').removeClass('is-invalid');
+        $('#form-errors').addClass('d-none');
+    });
+});
+</script>
+
+    <script>
+        class ServiceManager {
+            constructor(config) {
+                this.prefix = config.prefix; // Ex: 'servico', 'equipamento'
+                this.endpoint = config.endpoint; // URL da API
+                this.selectedItems = [];
+                
+                // Mapeamento de Elementos
+                this.el = {
+                    count: document.getElementById(`${this.prefix}-count`),
+                    total: document.getElementById(`${this.prefix}-total-amount`),
+                    container: document.getElementById(`${this.prefix}-container`),
+                    summary: document.getElementById(`${this.prefix}-summary`),
+                    inputHidden: document.getElementById(`${this.prefix}-input-hidden`),
+                    listModal: document.getElementById(`${this.prefix}-list-modal`),
+                    btnConfirm: document.getElementById(`${this.prefix}-confirm-btn`),
+                    btnAdd: document.getElementById(`${this.prefix}-add-btn`)
+                };
+
+                this.init();
+            }
+
+            fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            updateUI() {
+                // Atualiza Contador e Input Oculto para o POST do Django
+                if(this.el.count) this.el.count.textContent = this.selectedItems.length;
+                if(this.el.inputHidden) this.el.inputHidden.value = JSON.stringify(this.selectedItems);
+                
+                const total = this.selectedItems.reduce((acc, s) => acc + s.subtotal, 0);
+                if(this.el.total) this.el.total.textContent = this.fmt(total);
+
+                // Atualiza Tabela principal
+                this.el.container.innerHTML = this.selectedItems.length ? this.selectedItems.map((s, i) => `
+                    <tr>
+                        <td><strong>${s.titulo}</strong></td>
+                        <td>${this.fmt(s.valor)}</td>
+                        <td><input type="number" min="1" value="${s.quantidade}" class="form-control form-control-sm qty-edit" data-index="${i}"></td>
+                        <td><strong>${this.fmt(s.subtotal)}</strong></td>
+                        <td><button type="button" class="btn btn-outline-danger btn-sm btn-remove" data-index="${i}"><i class="fas fa-trash"></i></button></td>
+                    </tr>`).join('') : '<tr><td colspan="5" class="text-center py-3 text-muted">Nenhum item selecionado.</td></tr>';
+
+                // Atualiza Resumo lateral
+                if(this.el.summary) {
+                    this.el.summary.innerHTML = this.selectedItems.map(s => 
+                        `<div class="small d-flex justify-content-between"><span>${s.titulo} x${s.quantidade}</span><b>${this.fmt(s.subtotal)}</b></div>`
+                    ).join('') || '<p class="text-muted mb-0 small">Vazio</p>';
+                }
+            }
+
+            async fetchData() {
+                this.el.listModal.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm"></div></div>';
+                try {
+                    const response = await fetch(this.endpoint);
+                    const data = await response.json();
+                    
+                    this.el.listModal.innerHTML = data.map(item => {
+                        const fields = item.fields;
+                        // Ajuste aqui se o nome do campo de valor mudar entre tabelas
+                        const valor = fields.valor_servico || fields.valor_equipamento || fields.preco || 0;
+                        return `
+                        <div class="card mb-2 item-selection-card" style="cursor:pointer" onclick="this.querySelector('input').checked = true">
+                            <div class="card-body p-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="${this.prefix}Radio" 
+                                        value="${item.pk}" data-titulo="${fields.titulo}" data-valor="${valor}">
+                                    <label class="form-check-label d-flex justify-content-between w-100">
+                                        <span>${fields.titulo}</span> <strong>${this.fmt(valor)}</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('') || '<p class="text-center">Nada encontrado.</p>';
+                } catch (err) {
+                    this.el.listModal.innerHTML = '<p class="text-danger">Erro ao carregar.</p>';
+                }
+            }
+
+            init() {
+                // Evento de Quantidade
+                this.el.container.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('qty-edit')) {
+                        const s = this.selectedItems[e.target.dataset.index];
+                        s.quantidade = Math.max(1, parseInt(e.target.value) || 1);
+                        s.subtotal = s.quantidade * s.valor;
+                        this.updateUI();
+                    }
+                });
+
+                // Evento de Remover
+                this.el.container.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.btn-remove');
+                    if (btn) {
+                        this.selectedItems.splice(btn.dataset.index, 1);
+                        this.updateUI();
+                    }
+                });
+
+                // Abrir Modal
+                this.el.btnAdd.onclick = () => {
+                    this.fetchData();
+                    $(`#modal-${this.prefix}`).modal('show');
+                };
+
+                // Confirmar Seleção
+                this.el.btnConfirm.onclick = () => {
+                    const radio = document.querySelector(`input[name="${this.prefix}Radio"]:checked`);
+                    if (!radio) return;
+
+                    const id = radio.value;
+                    const valor = parseFloat(radio.dataset.valor);
+                    const existing = this.selectedItems.find(s => s.id == id);
+
+                    if (existing) {
+                        existing.quantidade++;
+                        existing.subtotal = existing.quantidade * existing.valor;
+                    } else {
+                        this.selectedItems.push({
+                            id: id,
+                            titulo: radio.dataset.titulo,
+                            valor: valor,
+                            quantidade: 1,
+                            subtotal: valor
+                        });
+                    }
+                    this.updateUI();
+                    $(`#modal-${this.prefix}`).modal('hide');
+                };
+
+                this.updateUI();
+            }
+        }
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            {% for bloco in blocos %}
+
+            const {{bloco}} = new ServiceManager({
+                prefix: '{{bloco}}',
+                endpoint: '{% url "lista_dados" %}?tipo={{bloco}}'
+            });
+
+            {% endfor %}
+        });
+
+    </script>
+
+
+
+{% endblock %}
+

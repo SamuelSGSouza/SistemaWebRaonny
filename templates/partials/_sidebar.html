@@ -1,0 +1,69 @@
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <h1>CRM Pro</h1>
+    </div>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="{% url 'home' %}" >
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        {% if request.user.is_staff %}
+          <li>
+              <a href="{% url 'usuarios' %}">
+                  <i class="fas fa-users"></i>
+                  <span>Usuários</span>
+              </a>
+          </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'propostas' %}">
+                <i class="fas fa-file-contract"></i>
+                <span>Propostas</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'clientes' %}">
+                <i class="fas fa-user"></i>
+                <span>Clientes</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'servicos' %}">
+                <i class="fas fa-file"></i>
+                <span>Serviços/Equipamentos</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'modelos' %}">
+                <i class="fas fa-edit"></i>
+                <span>Modelos</span>
+            </a>
+        </li>
+        
+    </ul>
+
+    <!-- Rodapé da Sidebar -->
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">AD</div>
+            <div class="user-details">
+                <h4>Admin User</h4>
+                <p>Administrador</p>
+            </div>
+        </div>
+
+        <!-- Logout -->
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </button>
+        </form>
+    </div>
+</nav>

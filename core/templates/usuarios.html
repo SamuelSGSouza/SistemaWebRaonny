@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block page_body %}
+    
+    <!-- Main Content -->
+    <main class="container-fluid p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div>
+                <h2 class="h3 font-weight-bold text-dark mb-1">Gerenciamento de Usuários</h2>
+                <p class="text-muted small mb-0">Visualize, edite e acompanhe sua base de usuarios.</p>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                <form action="" method="post" class="mr-3">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0 text-muted">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                        <input type="text" name="search_value" class="form-control border-left-0 shadow-none" placeholder="Buscar cliente..." style="width: 250px;">
+                    </div>
+                </form>
+
+                <a href="{% url 'criar_usuario' %}" class="btn btn-primary shadow-sm mr-3 px-3">
+                    <i class="fas fa-plus mr-1"></i> Novo Usuário
+                </a>
+                
+                <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                    style="width:40px; height:40px; border-radius: 50%; background-color: #e7f0ff; font-weight:700;">
+                    AD
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total de Usuários</small>
+                            <h4 class="mb-0">{{ total_usuarios }}</h4>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Usuários Ativos</small>
+                            <h4 class="mb-0">{{ usuarios_ativos }}</h4>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Usuários Suspensos</small>
+                            <h4 class="mb-0">{{ usuarios_suspensos }}</h4>
+                        </div>
+                        <i class="fas fa-pause-circle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h5 class="mb-0 text-dark font-weight-bold">Lista de Usuários</h5>
+            </div>
+            
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="clientesTable">
+                    <thead class="thead-light">
+                       
+                        <tr class="small text-uppercase font-weight-bold text-muted">
+                            <th class="border-0 px-4">ID</th>
+                            <th class="border-0">Usuários de Acesso</th>
+                            <th class="border-0 text-center">Cargo</th>
+                            <th class="border-0">Gerenciador de usuários?</th>
+                            <th class="border-0 text-right px-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientesTableBody">
+                        {% for usuario in usuarios %}
+                        <tr data-status="{{ cliente.status }}">
+                            <td class="align-middle px-4 text-muted small">#{{ usuario.id }}</td>
+                            <td class="align-middle font-weight-bold text-dark">{{ usuario.username }}</td>
+                            <td class="align-middle font-weight-bold text-dark">{{ usuario.info.cargo }}</td>
+                            
+                            <td class="align-middle text-center">
+                                {% if usuario.is_staff %}
+                                    <span class="badge badge-pill badge-light text-success border border-success px-3 py-1">SIM</span>
+                                {% else %}
+                                    <span class="badge badge-pill badge-light text-danger border border-danger px-3 py-1">NÃO</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle text-right px-4">
+                                    <div class="action-buttons">
+                                        <button class="btn btn-outline-secondary border-0" data-toggle="modal" data-target="#modalAlterar{{usuario.id}}">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </button>
+                                        <div class="modal fade" id="modalAlterar{{ usuario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalAlterarLabel{{ usuario.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalAlterarLabel{{ usuario.id }}">
+                    <i class="fas fa-user-cog mr-2"></i>
+                    Confirmar Alteração
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-2">
+                    Você está prestes a alterar as permissões do usuário:
+                </p>
+
+                <div class="alert alert-info">
+                    <strong>{{ usuario.first_name }} {{ usuario.last_name }}</strong><br>
+                    <small class="text-muted">{{ usuario.username }}</small>
+                </div>
+
+                <p class="mb-0">
+                    Atualmente, este usuário
+                    {% if not usuario.is_staff %}
+                        <strong class="text-danger">NÃO</strong>
+                    {% else %}
+                        <strong class="text-success">JÁ</strong>
+                    {% endif %}
+                    possui permissão para gerenciar outros usuários.
+                </p>
+
+                <p class="mt-2 mb-0 text-muted">
+                    Deseja realmente alterar esse status?
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Cancelar
+                </button>
+
+                <form action="{% url 'alterar_usuario' usuario.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sync-alt mr-1"></i> Confirmar Alteração
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+                                        
+                                        <button class="btn btn-outline-danger border-0" title="Deletar" data-toggle="modal" data-target="#modalExcluir{{usuario.id}}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+
+                                        <!-- Modal de Confirmação de Exclusão -->
+                                        <div class="modal fade" id="modalExcluir{{ usuario.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ usuario.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content border-0 shadow">
+                                                    
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title" id="modalLabel{{ usuario.id }}">
+                                                            <i class="fas fa-user-times mr-2"></i>
+                                                            Confirmar Exclusão
+                                                        </h5>
+                                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fechar">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="modal-body">
+                                                        <p class="mb-2">
+                                                            Você está prestes a excluir o usuário abaixo, juntamente com todas as propostas criadas por ele:
+                                                        </p>
+                                                        <div class="alert alert-warning mb-0">
+                                                            <strong>{{ usuario.first_name }} {{ usuario.last_name }}</strong><br>
+                                                            <small class="text-muted">{{ usuario.username }}</small>
+                                                        </div>
+                                                        <p class="mt-3 text-danger mb-0">
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                            Esta ação não pode ser desfeita.
+                                                        </p>
+                                                    </div>
+
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                                            <i class="fas fa-times mr-1"></i> Cancelar
+                                                        </button>
+
+                                                        <form action="{% url 'deletar_usuario' usuario.id %}" method="post" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fas fa-trash mr-1"></i> Confirmar Exclusão
+                                                            </button>
+                                                        </form>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card-footer bg-white border-top-0 py-3">
+                {% include 'partials/_pagination.html' %}
+            </div>
+        </div>
+    </main>
+
+
+    <!-- JavaScript para filtros -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const tableRows = document.querySelectorAll('#propostasTableBody tr[data-status]');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const status = this.dataset.status;
+                    
+                    // Filter table rows
+                    tableRows.forEach(row => {
+                        if (status === 'all' || row.dataset.status === status) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

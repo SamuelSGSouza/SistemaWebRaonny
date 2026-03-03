@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block page_body %}    
+    <!-- Main Content -->
+    <main class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-2 small">
+                    <li class="breadcrumb-item"><a href="{% url 'usuarios' %}">Usuários</a></li>
+                    <li class="breadcrumb-item active">{% if object %}Edição{% else %}Novo{% endif %}</li>
+                </ol>
+            </nav>
+            <h2 class="h3 font-weight-bold mb-1 text-dark">
+                {% if object %}Editar Usuário{% else %}Novo Usuário{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if object %}Atualize as permissões e dados de acesso do colaborador.{% else %}Insira as informações para criar uma nova conta de acesso.{% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <a href="{% url 'usuarios' %}" class="btn btn-link text-primary mr-3 shadow-none">
+                <i class="fas fa-chevron-left mr-1"></i> Voltar à Lista
+            </a>
+            <div class="avatar-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center border"
+                 style="width:42px; height:42px; border-radius: 50%; background-color: #e7f0ff; font-weight:700;">
+                AD
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 text-white font-weight-bold">
+                        <i class="fas fa-user text-white mr-2"></i>
+                        {% if object %}
+                            Perfil do Usuário - {{ object.username }}
+                        {% else %}
+                            Formulário de Cadastro
+                        {% endif %}
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-light border-left border-danger mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-exclamation-circle text-danger mr-3 mt-1"></i>
+                                <div>
+                                    <h6 class="text-danger font-weight-bold mb-1">Atenção</h6>
+                                    <p class="small text-muted mb-0">Verifique os campos destacados em vermelho antes de salvar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold small mb-3" style="letter-spacing: 0.05rem;">
+                                <i class="fas fa-id-card mr-1"></i> Informações Pessoais
+                            </h6>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Nome </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors }}</div>{% endif %}
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Telefone</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors }}</div>{% endif %}
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">E-mail Institucional *</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors }}</div>{% endif %}
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Cargo do Usuário *</label>
+                                    <select name="cargo_usuario" class="form-control" id="">
+                                        <option value="Comercial Manager">Comercial Manager</option>
+                                        <option value="Assistente Comercial">Assistente Comercial</option>
+                                        <option value="Diretor Comercial">Diretor Comercial</option>
+                                        <option value="Diretor">Diretor</option>
+                                        <option value="CEO">CEO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold small mb-3" style="letter-spacing: 0.05rem;">
+                                <i class="fas fa-lock mr-1"></i> Segurança e Acesso
+                            </h6>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Email para login (Login) *</label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+                                    <small class="form-text text-muted">Identificador único para login no sistema.</small>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Status do Usuário</label>
+                                    <div class="pt-2">
+                                        {{ form.is_active }} <span class="ml-1 small text-muted">Usuário Ativo</span>
+                                    </div>
+                                    {% if form.is_active.errors %}<div class="text-danger small mt-1">{{ form.is_active.errors }}</div>{% endif %}
+                                </div>
+                                
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">
+                                        Senha {% if object %}(Deixe em branco para manter a atual){% else %}*{% endif %}
+                                    </label>
+                                    {{ form.password }}
+                                    {% if form.password.errors %}<div class="text-danger small mt-1">{{ form.password.errors }}</div>{% endif %}
+                                    <small class="form-text text-muted">Mínimo de 8 caracteres.</small>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label class="small font-weight-bold text-primary">Confirmar Senha</label>
+                                    {{ form.password_confirm }}
+                                    {% if form.password_confirm.errors %}<div class="text-danger small mt-1">{{ form.password_confirm.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-light border-0 px-0 rounded d-flex justify-content-between p-3">
+                            <a href="{% url 'usuarios' %}" class="btn btn-light text-primary font-weight-bold px-4">
+                                <i class="fas fa-times mr-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary shadow px-5 font-weight-bold">
+                                {% if object %}
+                                    <i class="fas fa-save mr-2"></i> Atualizar Usuário
+                                {% else %}
+                                    <i class="fas fa-check-circle mr-2"></i> Confirmar Cadastro
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

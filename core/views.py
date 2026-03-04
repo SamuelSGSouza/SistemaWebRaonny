@@ -710,6 +710,7 @@ class ModeloCreateView(LoginRequiredMixin, CreateView):
         modelo.save()
 
         root = os.path.join(os.getcwd(), "models")
+        os.makedirs
         arquivo = self.request.FILES.get("arquivo")
         if arquivo:
             ext = arquivo.name.split(".")[-1]

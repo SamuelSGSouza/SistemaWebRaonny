@@ -433,6 +433,10 @@ class ClienteUpdateView(LoginRequiredMixin,UpdateView):
 @require_POST
 def deletar_cliente(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+    propostas = Proposta.objects.filter(cliente=cliente)
+    if propostas.exists():
+        messages.error(request, 'Não foi possível excluir o cliente pois ainda existem propostas em seu nome.')
+        return redirect("clientes")
     Log.objects.create(
         acao = f"Exclusão de Cliente {cliente.nome}",
         user = request.user.username

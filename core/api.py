@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 import hashlib
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 def verifica_token(token:str):
     users = User.objects.filter()
@@ -13,6 +14,7 @@ def verifica_token(token:str):
         if user_token == token:
             return user
     return None
+
 
 def valida_recebimento(request, campos_obrigatorios:list, required_method=None):
     if required_method:
@@ -39,10 +41,11 @@ def valida_recebimento(request, campos_obrigatorios:list, required_method=None):
 
     return body,usuario_validado
 
+@csrf_exempt
 def cadastrar_cliente(request,):
     campos_obrigatorios = ["nome", "cnpj", "telefone", "cidade", "uf", "nome_responsavel", "email_responsavel", "tratamento_responsavel", "status"]
 
-    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios)
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST")
     if isinstance(body_or_error, JsonResponse):
         return body_or_error
 

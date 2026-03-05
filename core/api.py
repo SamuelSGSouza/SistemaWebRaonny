@@ -53,8 +53,8 @@ def cadastrar_cliente(request,):
 
     if form.is_valid():
         cliente = form.save()
-        salva_log(f"Usuário criado: {usuario_validado.username}",usuario_validado.username)
-        return JsonResponse({"status": "success", "message": "Usuário criado com sucesso!"})
+        salva_log(f"Cliente criado: {usuario_validado.username} - API",usuario_validado.username)
+        return JsonResponse({"status": "success", "message": "Cliente criado com sucesso!"})
     else:
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
@@ -84,8 +84,8 @@ def atualizar_cliente(request,):
 
     if form.is_valid():
         cliente = form.save()
-        salva_log(f"Usuário criado: {usuario_validado.username}",usuario_validado.username)
-        return JsonResponse({"status": "success", "message": "Usuário criado com sucesso!"})
+        salva_log(acao=f"Cliente {cliente.nome} atualizado - API", username=usuario_validado.username)
+        return JsonResponse({"status": "success", "message": f"Cliente {cliente.nome} atualizado com sucesso!"})
     else:
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
@@ -122,7 +122,7 @@ def deletar_cliente(request,):
         )
 
     salva_log(
-        f"Exclusão de Cliente {cliente.nome}",
+        f"Cliente {cliente.nome} deletado com sucesso! - API",
         usuario_validado.username
     )
 

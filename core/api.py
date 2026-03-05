@@ -3,7 +3,8 @@ from .forms import *
 import json
 from django.contrib.auth.models import User
 import hashlib
-
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
 def verifica_token(token:str):
     users = User.objects.filter()
@@ -13,27 +14,36 @@ def verifica_token(token:str):
             return user
     return None
 
-def cadastrar_cliente(request,):
+def valida_recebimento(request, campos_obrigatorios:list):
     try:
         body = json.loads(request.body)
     except:
-        return JsonResponse({"status": "error", "message": f"O body recebido não foi um json."}, status=400)
+        return JsonResponse({"status": "error", "message": f"O body recebido não foi um json."}, status=400), None
 
     token = request.headers.get("token")
     if not token:
-        return JsonResponse({"status": "error", "message": f"Token de autorização não encontrado ou inválido."}, status=400)
+        return JsonResponse({"status": "error", "message": f"Token de autorização não encontrado ou inválido."}, status=400), None
 
     usuario_validado = verifica_token(token)
     if not usuario_validado:
-        return JsonResponse({"status": "error", "message": f"Token passado não corresponde a nenhum usuário do sistema"}, status=400)
+        return JsonResponse({"status": "error", "message": f"Token passado não corresponde a nenhum usuário do sistema"}, status=400), None
 
 
-    campos_obrigatorios = ["nome", "cnpj", "telefone", "cidade", "uf", "nome_responsavel", "email_responsavel", "tratamento_responsavel", "status"]
+    campos_obrigatorios = campos_obrigatorios
     for c in campos_obrigatorios:
         if c not in body.keys():
-            return JsonResponse({"status": "error", "message": f" O campo obrigatório {c} não foi encontrado na requisição."}, status=400)
+            return JsonResponse({"status": "error", "message": f" O campo obrigatório {c} não foi encontrado na requisição."}, status=400), None
 
-    form = ClienteForm(body)
+    return body,usuario_validado
+
+def cadastrar_cliente(request,):
+    campos_obrigatorios = ["nome", "cnpj", "telefone", "cidade", "uf", "nome_responsavel", "email_responsavel", "tratamento_responsavel", "status"]
+
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios)
+    if isinstance(body_or_error, JsonResponse):
+        return body_or_error
+
+    form = ClienteForm(body_or_error)
 
     if form.is_valid():
         cliente = form.save()
@@ -42,42 +52,44 @@ def cadastrar_cliente(request,):
     else:
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
-def deletar_usuario(request):
-    if request.method != "POST":
-        return JsonResponse({"status": "error", "message": "Método não permitido."}, status=405)
+@require_POST
+def deletar_cliente(request,):
+    campos_obrigatorios = ["cnpj", ]
 
-    try:
-        body = json.loads(request.body)
-    except:
-        return JsonResponse({"status": "error", "message": "O body recebido não foi um json."}, status=400)
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios)
+    if isinstance(body_or_error, JsonResponse):
+        return body_or_error
+    
+    cliente = Cliente.objects.filter(cnpj=body_or_error["cnpj"])
+    if not cliente.exists():
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Cliente não encontrado."
+            },
+            status=400
+        )
 
-    token = request.headers.get("token")
-    if not token:
-        return JsonResponse({"status": "error", "message": "Token de autorização não encontrado ou inválido."}, status=400)
+    propostas = Proposta.objects.filter(cliente=cliente)
+    if propostas.exists():
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Não foi possível excluir o cliente pois ainda existem propostas em seu nome."
+            },
+            status=400
+        )
 
-    usuario_validado = verifica_token(token)
-    if not usuario_validado:
-        return JsonResponse({"status": "error", "message": "Token passado não corresponde a nenhum usuário do sistema."}, status=400)
-
-    if "username" not in body:
-        return JsonResponse({"status": "error", "message": "O campo obrigatório username não foi encontrado na requisição."}, status=400)
-
-    try:
-        usuario = User.objects.get(username=body["username"])
-    except User.DoesNotExist:
-        return JsonResponse({"status": "error", "message": "Usuário não encontrado."}, status=404)
-
-    Log.objects.create(
-        acao=f"Exclusão de Usuário {usuario.username}",
-        user=usuario_validado.username
+    salva_log(
+        f"Exclusão de Cliente {cliente.nome}",
+        usuario_validado.username
     )
 
-    usuario.delete()
+    cliente.delete()
 
-    return JsonResponse({"status": "success", "message": "Usuário deletado com sucesso!"})
-    
-    
-
+    return JsonResponse(
+        {"status": "success", "message": "Cliente deletado com sucesso!"}
+    )
 
 # atualizar_cliente
 

@@ -133,7 +133,7 @@ def deletar_cliente(request,):
     )
 
 
-# atualizar_cliente
+
 
 # criar_proposta
 # editar_proposta

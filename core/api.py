@@ -58,11 +58,11 @@ def cadastrar_cliente(request,):
     else:
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
-
+@csrf_exempt
 def deletar_cliente(request,):
     campos_obrigatorios = ["cnpj", ]
 
-    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios)
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST")
     if isinstance(body_or_error, JsonResponse):
         return body_or_error
     

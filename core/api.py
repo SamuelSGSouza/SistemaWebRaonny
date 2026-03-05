@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from .forms import *
-import json
+import json, re
 from django.contrib.auth.models import User
 import hashlib
 from django.views.decorators.http import require_POST
@@ -66,7 +66,9 @@ def deletar_cliente(request,):
     if isinstance(body_or_error, JsonResponse):
         return body_or_error
     
-    cliente = Cliente.objects.filter(cnpj=body_or_error["cnpj"])
+    cnpj = re.sub(r"\D+","",body_or_error["cnpj"])
+
+    cliente = Cliente.objects.filter(cnpj=cnpj)
     if not cliente.exists():
         return JsonResponse(
             {

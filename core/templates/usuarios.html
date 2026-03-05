@@ -295,11 +295,19 @@
         });
 
     function copiarToken(btn) {
-        const token = btn.getAttribute("data-token");
-        navigator.clipboard.writeText(token);
+    const token = btn.getAttribute("data-token");
+
+    const temp = document.createElement("input");
+        temp.value = token;
+        document.body.appendChild(temp);
         
+        temp.select();
+        document.execCommand("copy");
+        
+        document.body.removeChild(temp);
+
         btn.innerText = "Copiado!";
-        
+
         setTimeout(() => {
             btn.innerText = "Copiar";
         }, 1500);

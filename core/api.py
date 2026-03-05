@@ -67,16 +67,18 @@ def deletar_cliente(request,):
         return body_or_error
     
     cnpj = re.sub(r"\D+","",body_or_error["cnpj"])
-
-    cliente = Cliente.objects.filter(cnpj=cnpj)
-    if not cliente.exists():
-        return JsonResponse(
-            {
-                "status": "error",
-                "message": "Cliente não encontrado."
-            },
-            status=400
-        )
+    
+    try:
+        cliente = Cliente.objects.get(cnpj=cnpj)
+    except:
+        if not cliente.exists():
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "Cliente não encontrado."
+                },
+                status=400
+            )
 
     propostas = Proposta.objects.filter(cliente=cliente)
     if propostas.exists():

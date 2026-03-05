@@ -90,6 +90,7 @@
                             <th class="border-0">Usuários de Acesso</th>
                             <th class="border-0 text-center">Cargo</th>
                             <th class="border-0">Gerenciador de usuários?</th>
+                            <th class="border-0">Token</th>
                             <th class="border-0 text-right px-4">Ações</th>
                         </tr>
                     </thead>
@@ -107,6 +108,31 @@
                                     <span class="badge badge-pill badge-light text-danger border border-danger px-3 py-1">NÃO</span>
                                 {% endif %}
                             </td>
+                            <td class="align-middle font-weight-bold text-dark">
+                                <span>
+                                    {{ usuario.token|slice:":6" }}...{{ usuario.token|slice:"-4:" }}
+                                </span>
+
+                                <button 
+                                    class="btn btn-sm btn-outline-secondary"
+                                    onclick="copiarToken(this)"
+                                    data-token="{{ usuario.token }}"
+                                >
+                                    Copiar
+                                </button>
+                            </td>
+                            <script>
+                                function copiarToken(btn) {
+                                    const token = btn.getAttribute("data-token");
+                                    navigator.clipboard.writeText(token);
+                                    
+                                    btn.innerText = "Copiado!";
+                                    
+                                    setTimeout(() => {
+                                        btn.innerText = "Copiar";
+                                    }, 1500);
+                                }
+                                </script>
                             <td class="align-middle text-right px-4">
                                     <div class="action-buttons">
                                         <button class="btn btn-outline-secondary border-0" data-toggle="modal" data-target="#modalAlterar{{usuario.id}}">

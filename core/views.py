@@ -21,6 +21,7 @@ from .forms import *
 from django.core import serializers
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
+import hashlib
 
 
 
@@ -400,6 +401,7 @@ class ClienteCreateView(LoginRequiredMixin,CreateView):
         )
 
         return response
+    
     def get_context_data(self, **kwargs):
         ctx =  super().get_context_data(**kwargs)
         ctx["clientes_active"] = "active"
@@ -487,6 +489,8 @@ class UsersView(LoginRequiredMixin,ListView):
 
             user.is_staff_status = "ativa" if user.is_staff else "rejeitada"
             user.human_is_staff = "SIM" if user.is_staff else "NÃO"
+            user.token = hashlib.sha256(user.username.encode()).hexdigest()
+
 
 
         ctx["usuarios_ativos"] = User.objects.filter(is_active=True).count()

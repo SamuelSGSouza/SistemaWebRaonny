@@ -8,6 +8,11 @@ class Log(models.Model):
     user = models.CharField(max_length=255, verbose_name="Usuário da Ação")
     momento = models.DateTimeField(auto_now_add=True)
 
+def salva_log(acao, username):
+    Log.objects.create(
+        acao = acao,
+        user = username
+    )
 
 class InfosUser(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="info")

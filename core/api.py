@@ -59,6 +59,38 @@ def cadastrar_cliente(request,):
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
 @csrf_exempt
+def atualizar_cliente(request,):
+    campos_obrigatorios = ["nome", "cnpj", "telefone", "cidade", "uf", "nome_responsavel", "email_responsavel", "tratamento_responsavel", "status"]
+
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST")
+    if isinstance(body_or_error, JsonResponse):
+        return body_or_error
+
+
+    cnpj = re.sub(r"\D+","",body_or_error["cnpj"])
+
+    try:
+        cliente = Cliente.objects.get(cnpj=cnpj)
+    except:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Cliente não encontrado."
+            },
+            status=400
+        )
+
+    form = ClienteForm(body_or_error, instance=cliente)
+
+    if form.is_valid():
+        cliente = form.save()
+        salva_log(f"Usuário criado: {usuario_validado.username}",usuario_validado.username)
+        return JsonResponse({"status": "success", "message": "Usuário criado com sucesso!"})
+    else:
+        return JsonResponse({"status": "error", "message": form.errors}, status=400)
+    
+
+@csrf_exempt
 def deletar_cliente(request,):
     campos_obrigatorios = ["cnpj", ]
 
@@ -100,12 +132,10 @@ def deletar_cliente(request,):
         {"status": "success", "message": "Cliente deletado com sucesso!"}
     )
 
+
 # atualizar_cliente
 
-# deletar_cliente
-
 # criar_proposta
-
 # editar_proposta
 # deletar_proposta
 # baixar_proposta

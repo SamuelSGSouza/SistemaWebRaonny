@@ -42,17 +42,7 @@ def cadastrar_cliente(request,):
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
 
-    # body = {
-    #     "nome": "Empresa X",
-    #     "cnpj": "12.345.678/0001-99",
-    #     "telefone": "47999999999",
-    #     "cidade": "Jaraguá do Sul",
-    #     "uf": "SC",
-    #     "nome_responsavel": "João",
-    #     "email_responsavel": "joao@email.com",
-    #     "tratamento_responsavel": "SR",
-    #     "status": "ATIVO"
-    #     }
+    
     
 
 

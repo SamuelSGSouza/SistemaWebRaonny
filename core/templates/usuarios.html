@@ -121,18 +121,6 @@
                                     Copiar
                                 </button>
                             </td>
-                            <script>
-                                function copiarToken(btn) {
-                                    const token = btn.getAttribute("data-token");
-                                    navigator.clipboard.writeText(token);
-                                    
-                                    btn.innerText = "Copiado!";
-                                    
-                                    setTimeout(() => {
-                                        btn.innerText = "Copiar";
-                                    }, 1500);
-                                }
-                                </script>
                             <td class="align-middle text-right px-4">
                                     <div class="action-buttons">
                                         <button class="btn btn-outline-secondary border-0" data-toggle="modal" data-target="#modalAlterar{{usuario.id}}">
@@ -305,5 +293,16 @@
                 });
             });
         });
+
+    function copiarToken(btn) {
+        const token = btn.getAttribute("data-token");
+        navigator.clipboard.writeText(token);
+        
+        btn.innerText = "Copiado!";
+        
+        setTimeout(() => {
+            btn.innerText = "Copiar";
+        }, 1500);
+    }
     </script>
 {% endblock %}

@@ -14,7 +14,10 @@ def verifica_token(token:str):
             return user
     return None
 
-def valida_recebimento(request, campos_obrigatorios:list):
+def valida_recebimento(request, campos_obrigatorios:list, required_method=None):
+    if required_method:
+        if required_method != request.method:
+            return JsonResponse({"status": "error", "message": f"Método inválido."}, status=400), None
     try:
         body = json.loads(request.body)
     except:
@@ -52,7 +55,7 @@ def cadastrar_cliente(request,):
     else:
         return JsonResponse({"status": "error", "message": form.errors}, status=400)
     
-@require_POST
+
 def deletar_cliente(request,):
     campos_obrigatorios = ["cnpj", ]
 

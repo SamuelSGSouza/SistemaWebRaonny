@@ -249,7 +249,7 @@ def criar_proposta(request,):
 def baixar_proposta(request ):
     campos_obrigatorios = ["titulo_proposta", ]
 
-    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST")
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios,)
     if isinstance(body_or_error, JsonResponse):
         return body_or_error
     

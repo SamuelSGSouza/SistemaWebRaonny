@@ -42,6 +42,7 @@ urlpatterns = [
 
 
     path('api/criar_proposta', api.criar_proposta, name='api_criar_proposta'),
+    path('api/baixar_proposta', api.baixar_proposta, name='api_baixar_proposta'),
 
 
 ]

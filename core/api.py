@@ -259,7 +259,9 @@ def baixar_proposta(request ):
         return JsonResponse({"status": "error", "message": f"Proposta desejada não foi encontrada"}, status=400)
     
     url = reverse("download_docx")
-    url_completa = f"{url}?id_proposta={possiveis_titulos[0].id}&formato=pdf"
+    url_completa = request.build_absolute_uri(
+        f"{url}?id_proposta={possiveis_titulos[0].id}&formato=pdf"
+    )
     return JsonResponse( {"status": "success", "message": url_completa}, status=200)
 
 # deletar_proposta

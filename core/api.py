@@ -1,13 +1,12 @@
 from django.http import HttpResponse, JsonResponse
 from .forms import *
-import json, re, traceback
+import json, re, traceback,hashlib
 from django.contrib.auth.models import User
-import hashlib
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from .views import gera_numero_proposta
-
+from datetime import datetime
 def verifica_token(token:str):
     users = User.objects.filter()
     for user in users:
@@ -47,6 +46,14 @@ def valida_recebimento(request, campos_obrigatorios:list, required_method=None, 
                 return JsonResponse({"status": "error", "message": f"Campo '{campo}' deve ser do tipo {tipo}, recebido {type(data[campo])}"}, status=400), None
 
     return body,usuario_validado
+
+def gera_numero_proposta(user):
+    user_atual = user
+    hoje = datetime.today()
+    propostas_dia = Proposta.objects.filter(usuario_responsavel=user_atual,criacao__gte=hoje.strftime("%Y-%m-%d") ).count()
+    hoje_proposta = hoje.strftime("%Y%m%d")
+    numero_proposta = f"{hoje_proposta}-{propostas_dia + 1}-{str(user.first_name)[0] if user.first_name else 'q'}"
+    return numero_proposta
 
 @csrf_exempt
 def cadastrar_cliente(request,):
@@ -139,7 +146,7 @@ def deletar_cliente(request,):
         {"status": "success", "message": "Cliente deletado com sucesso!"}
     )
 
-
+@csrf_exempt
 def criar_proposta(request,):
     campos_obrigatorios = [
         "titulo","nome_do_modelo","cnpj_cliente","tempo_de_contrato_em_meses","valor_dolar","observacoes_equipamento","observacoes_adicionais","observacoes_servicos","servicos","equipamentos","adicionais"

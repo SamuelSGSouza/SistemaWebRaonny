@@ -240,7 +240,7 @@ def criar_proposta(request,):
             user=usuario_validado
     )
     return JsonResponse(        
-        {"status": "success", "message": "Cliente deletado com sucesso!"}, status=201)
+        {"status": "success", "message": "Proposta criada com sucesso!"}, status=201)
 
     proposta = {
         "titulo": "Proposta de Teste",

@@ -264,8 +264,26 @@ def baixar_proposta(request ):
     )
     return JsonResponse( {"status": "success", "message": url_completa}, status=200)
 
+@csrf_exempt
+def deletar_proposta(request):
+    campos_obrigatorios = ["titulo_proposta", ]
+
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST")
+    if isinstance(body_or_error, JsonResponse):
+        return body_or_error
+    
+    propostas = Proposta.objects.filter(titulo=body_or_error["titulo_proposta"])
+    if not propostas.exists():
+        return JsonResponse({"status": "error", "message": f"Proposta desejada não foi encontrada"}, status=400)
+
+    
+    propostas[0].delete()
+    Log.objects.create(
+        acao = f"Exclusão de Proposta: {body_or_error['titulo_proposta']}",
+        user = usuario_validado
+    )
+    return JsonResponse( {"status": "success", "message": f"Proposta - {body_or_error['titulo_proposta']}- deletada com sucesso"}, status=202)
 # deletar_proposta
-# baixar_proposta
 
 
 

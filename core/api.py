@@ -7,6 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from .views import gera_numero_proposta
 from datetime import datetime
+from django.urls import reverse
+
+
 def verifica_token(token:str):
     users = User.objects.filter()
     for user in users:
@@ -239,41 +242,26 @@ def criar_proposta(request,):
             acao=f"Criação de Proposta com ID {proposta.id}",
             user=usuario_validado
     )
-    return JsonResponse(        
-        {"status": "success", "message": "Proposta criada com sucesso!"}, status=201)
+    return JsonResponse( {"status": "success", "message": "Proposta criada com sucesso!"}, status=201)
 
-    proposta = {
-        "titulo": "Proposta de Teste",
-        "nome_do_modelo": "Modelo de Testes",
-        "cnpj_cliente": "000.000.00/0000-00",
-        "tempo_de_contrato_em_meses": 24,
-        "valor_dolar": 6.30,
-        "observacoes_equipamento": "",
-        "observacoes_adicionais": "",
-        "observacoes_servicos": "",
-        "servicos": [
-            {
-                "titulo":"serviço 1",
-                "quantidade": 32
-            }
-        ],
-        "Equipamentos": [
-            {
-                "titulo":"sdf",
-                "quantidade": 32
-            }
-        ],
-        "Adicionais": [
-            {
-                "titulo":"32 ",
-                "quantidade": 32
-            }
-        ],
-        
-    }
 
-# criar_proposta
-# editar_proposta
+@csrf_exempt
+def baixar_proposta(request ):
+    campos_obrigatorios = ["titulo_proposta", ]
+
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST")
+    if isinstance(body_or_error, JsonResponse):
+        return body_or_error
+    
+    titulo_proposta = body_or_error["titulo_proposta"]
+    possiveis_titulos = Proposta.objects.filter(titulo=titulo_proposta)
+    if not possiveis_titulos.exists():
+        return JsonResponse({"status": "error", "message": f"Proposta desejada não foi encontrada"}, status=400)
+    
+    url = reverse("download_docx")
+    url_completa = f"{url}?id_proposta={possiveis_titulos[0].id}&formato=pdf"
+    return JsonResponse( {"status": "success", "message": url_completa}, status=200)
+
 # deletar_proposta
 # baixar_proposta
 

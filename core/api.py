@@ -1,11 +1,12 @@
 from django.http import HttpResponse, JsonResponse
 from .forms import *
-import json, re
+import json, re, traceback
 from django.contrib.auth.models import User
 import hashlib
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from .views import gera_numero_proposta
 
 def verifica_token(token:str):
     users = User.objects.filter()
@@ -170,11 +171,69 @@ def criar_proposta(request,):
     if not modelo_existente.exists():
         return JsonResponse({"status": "error", "message": f"Não existe um modelo com o nome -{nome_do_modelo}-"}, status=400)
 
-    servicos = body_or_error["servicos"]
-    if servicos:
-        for serv in servicos:
-            pass
 
+    cnpj_cliente = re.sub(r"\D+", "", body_or_error["cnpj_cliente"])
+    possiveis_clientes = Cliente.objects.filter(cnpj=cnpj_cliente)
+    if not possiveis_clientes.exists():
+        return JsonResponse({"status": "error", "message": f"Cliente com o cnpj -{cnpj_cliente}- não foi encontrado"}, status=400)
+
+
+    try:
+        proposta = Proposta.objects.create(
+            titulo=body_or_error["titulo"],
+            cliente=possiveis_clientes[0],
+            modelo=body_or_error["nome_do_modelo"],
+            numero_proposta=gera_numero_proposta(),
+            tempo_de_contrato=body_or_error["tempo_de_contrato_em_meses"],
+            valor_dolar=body_or_error["valor_dolar"],
+            observacoes_equipamento=body_or_error["observacoes_equipamento"],
+            observacoes_adicionais=body_or_error["observacoes_adicionais"],
+            observacoes_servicos=body_or_error["observacoes_servicos"],
+            tipo_cobranca_equipamento=False ,
+            tipo_cobranca_servico=False,
+            tipo_cobranca_adicional=False,
+            usuario_responsavel=usuario_validado,
+        )
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": f"Não foi possível salvar a proposta pois {traceback.format_exc()}"}, status=400)
+
+    for tipo in ["servicos", "equipamentos", "adicionais"]:
+        servicos = body_or_error[tipo]
+        dict_nomes = {
+            "servicos": "Serviço",
+            "equipamentos": "Equipamento",
+            "adicionais": "Adicional"
+        }
+        nome_serv = dict_nomes[tipo]
+        serv_props_criadas = []
+        if servicos:
+            for serv in servicos:
+                servs = Servico.objects.filter(titulo=serv["titulo"])
+                if not servs.exists():
+                    proposta.delete()
+                    return JsonResponse({"status": "error", "message": f"O {nome_serv} -{serv['titulo']}- não foi encontrado"}, status=400)
+
+                try:
+                    serv_prop = ServicoProposta.objects.create(
+                        proposta=proposta,
+                        quantidade=serv["quantidade"],
+                        descricao=servs[0].descricao,
+                        preco_unitario=servs[0].valor_servico,
+                        tipo= dict_nomes[tipo]
+                    )
+                    serv_props_criadas.append(serv_prop)
+                except Exception as e:
+                    proposta.delete()
+                    for serv_prop in serv_props_criadas:
+                        serv_prop.delete()
+
+                    return JsonResponse({"status": "error", "message": f"Erro desconhecido ao criar Proposta"}, status=400)
+    Log.objects.create(
+            acao=f"Criação de Proposta com ID {proposta.id}",
+            user=usuario_validado
+    )
+    return JsonResponse(        
+        {"status": "success", "message": "Cliente deletado com sucesso!"}, status=201)
 
     proposta = {
         "titulo": "Proposta de Teste",
@@ -187,19 +246,19 @@ def criar_proposta(request,):
         "observacoes_servicos": "",
         "servicos": [
             {
-                "id":12,
+                "titulo":"serviço 1",
                 "quantidade": 32
             }
         ],
         "Equipamentos": [
             {
-                "id":12,
+                "titulo":"sdf",
                 "quantidade": 32
             }
         ],
         "Adicionais": [
             {
-                "id":12,
+                "titulo":"32 ",
                 "quantidade": 32
             }
         ],

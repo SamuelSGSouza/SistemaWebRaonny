@@ -209,17 +209,18 @@ def lista_dados(request):
     servicos_json = serializers.serialize("json", servicos)
     return HttpResponse(servicos_json, content_type="application/json")
 
+def gera_numero_proposta(user):
+    user_atual = user
+    hoje = datetime.today()
+    propostas_dia = Proposta.objects.filter(usuario_responsavel=user_atual,criacao__gte=hoje.strftime("%Y-%m-%d") ).count()
+    hoje_proposta = hoje.strftime("%Y%m%d")
+    numero_proposta = f"{hoje_proposta}-{propostas_dia + 1}-{str(user.first_name)[0] if user.first_name else 'q'}"
+    return numero_proposta
 
 class PropostaCreateView(LoginRequiredMixin,TemplateView):
     template_name = "criar_proposta.html"
 
-    def gera_numero_proposta(self, ):
-        user_atual = self.request.user
-        hoje = datetime.today()
-        propostas_dia = Proposta.objects.filter(usuario_responsavel=user_atual,criacao__gte=hoje.strftime("%Y-%m-%d") ).count()
-        hoje_proposta = hoje.strftime("%Y%m%d")
-        numero_proposta = f"{hoje_proposta}-{propostas_dia + 1}-{str(self.request.user.first_name)[0] if self.request.user.first_name else 'q'}"
-        return numero_proposta
+    
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -274,7 +275,7 @@ class PropostaCreateView(LoginRequiredMixin,TemplateView):
             titulo=data.get("titulo"),
             cliente=cliente,
             modelo=data.get("modelo"),
-            numero_proposta=self.gera_numero_proposta(),
+            numero_proposta=gera_numero_proposta(self.request.user),
             tempo_de_contrato=data.get("tempo_de_contrato"),
             valor_dolar=data.get("valor_dolar"),
             observacoes_equipamento=data.get("observacoes_equipamento", ""),

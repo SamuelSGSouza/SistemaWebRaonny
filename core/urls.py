@@ -38,7 +38,10 @@ urlpatterns = [
     #URLS API
     path('api/cadastrar_cliente', api.cadastrar_cliente, name='api_cadastrar_cliente'),
     path('api/deletar_cliente', api.deletar_cliente, name='api_deletar_cliente'),
-    path('api/atualizar_cliente', api.atualizar_cliente, name='atualizar_cliente'),
+    path('api/atualizar_cliente', api.atualizar_cliente, name='api_atualizar_cliente'),
+
+
+    path('api/criar_proposta', api.criar_proposta, name='api_criar_proposta'),
 
 
 ]

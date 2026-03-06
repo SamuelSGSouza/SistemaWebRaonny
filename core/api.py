@@ -190,7 +190,7 @@ def criar_proposta(request,):
             titulo=body_or_error["titulo"],
             cliente=possiveis_clientes[0],
             modelo=body_or_error["nome_do_modelo"],
-            numero_proposta=gera_numero_proposta(),
+            numero_proposta=gera_numero_proposta(usuario_validado),
             tempo_de_contrato=body_or_error["tempo_de_contrato_em_meses"],
             valor_dolar=body_or_error["valor_dolar"],
             observacoes_equipamento=body_or_error["observacoes_equipamento"],

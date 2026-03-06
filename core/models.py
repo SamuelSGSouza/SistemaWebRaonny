@@ -147,7 +147,7 @@ class Modelo(models.Model):
     atualizacao = models.DateTimeField(auto_now=True)
 
 class Servico(models.Model):
-    titulo = models.CharField(max_length=255)
+    titulo = models.CharField(max_length=255, unique=True)
     descricao=models.TextField()
     valor_servico= models.FloatField()
     tipo = models.CharField(max_length=14,

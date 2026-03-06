@@ -228,6 +228,7 @@ class PropostaCreateView(LoginRequiredMixin,TemplateView):
         ctx["titulo"] = pre_proposta.get("titulo")
         ctx["modelo"] = Modelo.objects.filter(titulo=pre_proposta.get("modelo"))[0]
         ctx["cliente"] = pre_proposta.get("cliente")
+        
 
         cliente = Cliente.objects.filter(cnpj=ctx["cliente"]).first()
         ctx["nome_cliente"] = cliente.nome if cliente else ""
@@ -295,7 +296,7 @@ class PropostaCreateView(LoginRequiredMixin,TemplateView):
 
             index, field = match.groups()
             servicos.setdefault(index, {})[field] = value
-
+        
         for tipo, lista in items.items():
             for servico in lista:
                 serv_data = Servico.objects.get(id=servico["id"])

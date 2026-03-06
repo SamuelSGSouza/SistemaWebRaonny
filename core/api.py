@@ -16,7 +16,7 @@ def verifica_token(token:str):
     return None
 
 
-def valida_recebimento(request, campos_obrigatorios:list, required_method=None):
+def valida_recebimento(request, campos_obrigatorios:list, required_method=None, schema:dict=None):
     if required_method:
         if required_method != request.method:
             return JsonResponse({"status": "error", "message": f"Método inválido."}, status=400), None
@@ -38,6 +38,12 @@ def valida_recebimento(request, campos_obrigatorios:list, required_method=None):
     for c in campos_obrigatorios:
         if c not in body.keys():
             return JsonResponse({"status": "error", "message": f" O campo obrigatório {c} não foi encontrado na requisição."}, status=400), None
+    
+    if schema:
+        data=body
+        for campo, tipo in schema.items():
+            if not isinstance(data[campo], tipo):
+                return JsonResponse({"status": "error", "message": f"Campo '{campo}' deve ser do tipo {tipo}, recebido {type(data[campo])}"}, status=400), None
 
     return body,usuario_validado
 
@@ -133,7 +139,72 @@ def deletar_cliente(request,):
     )
 
 
+def criar_proposta(request,):
+    campos_obrigatorios = [
+        "titulo","nome_do_modelo","cnpj_cliente","tempo_de_contrato_em_meses","valor_dolar","observacoes_equipamento","observacoes_adicionais","observacoes_servicos","servicos","equipamentos","adicionais"
+    ]
+    schema = {
+        "titulo": str,
+        "nome_do_modelo": str,
+        "cnpj_cliente": str,
+        "tempo_de_contrato_em_meses": int,
+        "valor_dolar": (int, float),
+        "observacoes_equipamento": str,
+        "observacoes_adicionais": str,
+        "observacoes_servicos": str,
+        "servicos": list,
+        "equipamentos": list,
+        "adicionais": list,
+    }
 
+    body_or_error, usuario_validado  =  valida_recebimento(request, campos_obrigatorios, "POST", schema)
+    if isinstance(body_or_error, JsonResponse):
+        return body_or_error
+    
+    titulo = body_or_error["titulo"]
+    if len(str(titulo).strip()) < 8:
+        return JsonResponse({"status": "error", "message": f"O título da proposta deve conter ao menos 8 caracteres"}, status=400)
+
+    nome_do_modelo = body_or_error["nome_do_modelo"]
+    modelo_existente = Modelo.objects.filter(titulo=nome_do_modelo)
+    if not modelo_existente.exists():
+        return JsonResponse({"status": "error", "message": f"Não existe um modelo com o nome -{nome_do_modelo}-"}, status=400)
+
+    servicos = body_or_error["servicos"]
+    if servicos:
+        for serv in servicos:
+            pass
+
+
+    proposta = {
+        "titulo": "Proposta de Teste",
+        "nome_do_modelo": "Modelo de Testes",
+        "cnpj_cliente": "000.000.00/0000-00",
+        "tempo_de_contrato_em_meses": 24,
+        "valor_dolar": 6.30,
+        "observacoes_equipamento": "",
+        "observacoes_adicionais": "",
+        "observacoes_servicos": "",
+        "servicos": [
+            {
+                "id":12,
+                "quantidade": 32
+            }
+        ],
+        "Equipamentos": [
+            {
+                "id":12,
+                "quantidade": 32
+            }
+        ],
+        "Adicionais": [
+            {
+                "id":12,
+                "quantidade": 32
+            }
+        ],
+        
+    }
 
 # criar_proposta
 # editar_proposta

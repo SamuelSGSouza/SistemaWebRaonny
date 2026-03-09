@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+
+{% block page_body %}
+<style>
+    /* Estilos elegantes e profissionais para a documentação */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    h1 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-top: 0;
+        font-weight: 300;
+        font-size: 2.5em;
+    }
+    h2 {
+        color: #2c3e50;
+        margin-top: 30px;
+        font-weight: 400;
+        border-left: 5px solid #3498db;
+        padding-left: 15px;
+    }
+    h3 {
+        color: #34495e;
+        margin-top: 25px;
+        font-weight: 500;
+        font-size: 1.3em;
+    }
+    p {
+        margin-bottom: 15px;
+    }
+    .method {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        color: #fff;
+        margin-right: 10px;
+    }
+    .method-post {
+        background-color: #27ae60;
+    }
+    .url {
+        font-family: monospace;
+        background-color: #ecf0f1;
+        padding: 5px 10px;
+        border-radius: 4px;
+        color: #c0392b;
+    }
+    .card {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 0.9em;
+    }
+    th {
+        background-color: #3498db;
+        color: #fff;
+        font-weight: 600;
+        padding: 12px 15px;
+        text-align: left;
+    }
+    td {
+        padding: 10px 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    pre {
+        background-color: #2d2d2d;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+        line-height: 1.4;
+    }
+    code {
+        background-color: #ecf0f1;
+        color: #c0392b;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+    }
+    .note {
+        background-color: #fef9e7;
+        border-left: 4px solid #f1c40f;
+        padding: 10px 15px;
+        margin: 20px 0;
+    }
+    hr {
+        border: 0;
+        height: 1px;
+        background: linear-gradient(to right, #ccc, #333, #ccc);
+        margin: 30px 0;
+    }
+    .footer {
+        text-align: center;
+        color: #7f8c8d;
+        margin-top: 30px;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="container">
+    <h1>Documentação da API</h1>
+
+    <!-- Visão Geral -->
+    <h2>Visão Geral</h2>
+    <p>Esta documentação detalha os endpoints da API para gerenciamento de clientes e propostas. A API é construída com Django e utiliza autenticação baseada em token.</p>
+
+    <!-- Autenticação -->
+    <h2>Autenticação</h2>
+    <p>A autenticação é realizada através de um token enviado no cabeçalho <code>token</code> de cada requisição.</p>
+    <pre>def verifica_token(token:str):
+    users = User.objects.filter()
+    for user in users:
+        user_token = hashlib.sha256(user.username.encode()).hexdigest()
+        if user_token == token:
+            return user
+    return None</pre>
+
+    <!-- Funções Auxiliares -->
+    <h2>Funções Auxiliares</h2>
+    <h3><code>valida_recebimento(request, campos_obrigatorios:list, required_method=None, schema:dict=None)</code></h3>
+    <p>Esta função valida as requisições recebidas, verificando o método HTTP, a presença de um token válido, os campos obrigatórios no corpo da requisição e o tipo de dado de cada campo.</p>
+
+    <h3><code>gera_numero_proposta(user)</code></h3>
+    <p>Esta função gera um número de proposta único com base no usuário e na data atual.</p>
+
+    <!-- Endpoints -->
+    <h2>Endpoints</h2>
+    <p>A seguir, são detalhados os endpoints disponíveis na API.</p>
+
+    <!-- Clientes -->
+    <h3>Clientes</h3>
+
+    <!-- POST /cadastrar_cliente -->
+    <div class="card">
+        <span class="method method-post">POST</span> <span class="url">/cadastrar_cliente</span>
+        <p>Cadastra um novo cliente no sistema.</p>
+        <h4>Corpo da Requisição:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Obrigatório</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>nome</td><td>string</td><td>Sim</td><td>Nome do cliente.</td></tr>
+                <tr><td>cnpj</td><td>string</td><td>Sim</td><td>CNPJ do cliente.</td></tr>
+                <tr><td>telefone</td><td>string</td><td>Sim</td><td>Telefone de contato do cliente.</td></tr>
+                <tr><td>cidade</td><td>string</td><td>Sim</td><td>Cidade do cliente.</td></tr>
+                <tr><td>uf</td><td>string</td><td>Sim</td><td>UF do cliente.</td></tr>
+                <tr><td>nome_responsavel</td><td>string</td><td>Sim</td><td>Nome do responsável pelo cliente.</td></tr>
+                <tr><td>email_responsavel</td><td>string</td><td>Sim</td><td>Email do responsável.</td></tr>
+                <tr><td>tratamento_responsavel</td><td>string</td><td>Sim</td><td>Forma de tratamento do responsável (e.g., Sr., Sra.).</td></tr>
+                <tr><td>status</td><td>string</td><td>Sim</td><td>Status do cliente.</td></tr>
+            </tbody>
+        </table>
+        <h4>Exemplo de Resposta (Sucesso):</h4>
+        <pre>{
+    "status": "success",
+    "message": "Cliente criado com sucesso!"
+}</pre>
+    </div>
+
+    <!-- POST /atualizar_cliente -->
+    <div class="card">
+        <span class="method method-post">POST</span> <span class="url">/atualizar_cliente</span>
+        <p>Atualiza os dados de um cliente existente com base no CNPJ.</p>
+        <h4>Corpo da Requisição:</h4>
+        <p><em>Mesmo corpo da requisição de <code>cadastrar_cliente</code>.</em></p>
+        <h4>Exemplo de Resposta (Sucesso):</h4>
+        <pre>{
+    "status": "success",
+    "message": "Cliente {nome_do_cliente} atualizado com sucesso!"
+}</pre>
+    </div>
+
+    <!-- POST /deletar_cliente -->
+    <div class="card">
+        <span class="method method-post">POST</span> <span class="url">/deletar_cliente</span>
+        <p>Deleta um cliente com base no CNPJ, desde que não haja propostas associadas a ele.</p>
+        <h4>Corpo da Requisição:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Obrigatório</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>cnpj</td><td>string</td><td>Sim</td><td>CNPJ do cliente a ser deletado.</td></tr>
+            </tbody>
+        </table>
+        <h4>Exemplo de Resposta (Sucesso):</h4>
+        <pre>{
+    "status": "success",
+    "message": "Cliente deletado com sucesso!"
+}</pre>
+    </div>
+
+    <!-- Propostas -->
+    <h3>Propostas</h3>
+
+    <!-- POST /criar_proposta -->
+    <div class="card">
+        <span class="method method-post">POST</span> <span class="url">/criar_proposta</span>
+        <p>Cria uma nova proposta no sistema.</p>
+        <h4>Corpo da Requisição:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Obrigatório</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>titulo</td><td>string</td><td>Sim</td><td>Título da proposta (mínimo 8 caracteres).</td></tr>
+                <tr><td>nome_do_modelo</td><td>string</td><td>Sim</td><td>Nome de um modelo de proposta existente.</td></tr>
+                <tr><td>cnpj_cliente</td><td>string</td><td>Sim</td><td>CNPJ do cliente associado à proposta.</td></tr>
+                <tr><td>tempo_de_contrato_em_meses</td><td>integer</td><td>Sim</td><td>Duração do contrato em meses.</td></tr>
+                <tr><td>valor_dolar</td><td>float/integer</td><td>Sim</td><td>Valor do dólar a ser utilizado na proposta.</td></tr>
+                <tr><td>observacoes_equipamento</td><td>string</td><td>Sim</td><td>Observações sobre os equipamentos.</td></tr>
+                <tr><td>observacoes_adicionais</td><td>string</td><td>Sim</td><td>Observações adicionais.</td></tr>
+                <tr><td>observacoes_servicos</td><td>string</td><td>Sim</td><td>Observações sobre os serviços.</td></tr>
+                <tr><td>servicos</td><td>list</td><td>Sim</td><td>Lista de objetos de serviço.</td></tr>
+                <tr><td>equipamentos</td><td>list</td><td>Sim</td><td>Lista de objetos de equipamento.</td></tr>
+                <tr><td>adicionais</td><td>list</td><td>Sim</td><td>Lista de objetos adicionais.</td></tr>
+            </tbody>
+        </table>
+        <h4>Exemplo de Resposta (Sucesso):</h4>
+        <pre>{
+    "status": "success",
+    "message": "Proposta criada com sucesso!"
+}</pre>
+    </div>
+
+    <!-- POST /baixar_proposta -->
+    <div class="card">
+        <span class="method method-post">POST</span> <span class="url">/baixar_proposta</span>
+        <p>Retorna a URL para download de uma proposta em formato PDF.</p>
+        <h4>Corpo da Requisição:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Obrigatório</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>titulo_proposta</td><td>string</td><td>Sim</td><td>Título da proposta a ser baixada.</td></tr>
+            </tbody>
+        </table>
+        <h4>Exemplo de Resposta (Sucesso):</h4>
+        <pre>{
+    "status": "success",
+    "message": "{url_para_download}"
+}</pre>
+    </div>
+
+    <!-- POST /deletar_proposta -->
+    <div class="card">
+        <span class="method method-post">POST</span> <span class="url">/deletar_proposta</span>
+        <p>Deleta uma proposta com base no seu título.</p>
+        <h4>Corpo da Requisição:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Obrigatório</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>titulo_proposta</td><td>string</td><td>Sim</td><td>Título da proposta a ser deletada.</td></tr>
+            </tbody>
+        </table>
+        <h4>Exemplo de Resposta (Sucesso):</h4>
+        <pre>{
+    "status": "success",
+    "message": "Proposta - {titulo_da_proposta}- deletada com sucesso"
+}</pre>
+    </div>
+
+    <hr>
+</div>
+{% endblock %}

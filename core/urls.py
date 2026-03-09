@@ -33,6 +33,7 @@ urlpatterns = [
     path('atualizar_modelos/<int:pk>/', views.ModeloUpdateView.as_view(), name='atualizar_modelos'),
     path('deletar_modelo/<int:pk>/', views.deletar_modelo, name='deletar_modelo'),
     path('download_modelo', views.download_modelo, name='download_modelo'),
+    path('api_doc', views.api_doc, name='api_doc'),
 
 
     #URLS API

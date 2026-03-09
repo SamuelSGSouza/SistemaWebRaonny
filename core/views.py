@@ -900,3 +900,12 @@ def download_docx(request):
     response["Content-Disposition"] = f'attachment; filename="Proposta - {cliente.nome}.{formato_download}"'
 
     return response
+
+
+
+
+
+
+
+def api_doc(request):
+    return render(request,"api_doc.html")

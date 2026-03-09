@@ -283,7 +283,6 @@ def deletar_proposta(request):
         user = usuario_validado
     )
     return JsonResponse( {"status": "success", "message": f"Proposta - {body_or_error['titulo_proposta']}- deletada com sucesso"}, status=202)
-# deletar_proposta
 
 
 

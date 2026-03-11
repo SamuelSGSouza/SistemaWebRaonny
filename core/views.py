@@ -108,7 +108,8 @@ class Home(LoginRequiredMixin,ListView):
             or ""
         )
         ctx["home_active"] = "active"
-
+        self.request.session["cargo"] = InfosUser.objects.get(usuario=self.request.user).cargo
+        self.request.session["sigla"] = str(self.request.user.first_name)[:2].upper()
         return ctx
     
 class PropostasView(LoginRequiredMixin, ListView):

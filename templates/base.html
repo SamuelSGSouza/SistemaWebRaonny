@@ -162,10 +162,10 @@
 
                 <div class="user-profile-section">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="avatar-circle mr-3">AD</div>
+                        <div class="avatar-circle mr-3">{{request.session.sigla}}</div>
                         <div class="overflow-hidden">
-                            <h6 class="mb-0 text-truncate">Admin User</h6>
-                            <small class="text-muted">Administrador</small>
+                            <h6 class="mb-0 text-truncate">{{request.user.first_name}}</h6>
+                            <small class="text-muted">{{request.session.cargo}}</small>
                         </div>
                     </div>
                     

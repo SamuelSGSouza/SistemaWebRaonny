@@ -64,7 +64,7 @@ def logout_view(request):
 class Home(LoginRequiredMixin,ListView):
     model = Log
     context_object_name = "logs"
-    paginate_by = 500
+    paginate_by = 10
     ordering = ["-momento"]
     template_name = "home.html"
 
@@ -115,7 +115,7 @@ class Home(LoginRequiredMixin,ListView):
 class PropostasView(LoginRequiredMixin, ListView):
     model = Proposta
     context_object_name = "propostas"
-    paginate_by = 500
+    paginate_by = 10
     ordering = ["-atualizacao"]
     template_name = "propostas.html"
 
@@ -341,7 +341,7 @@ def deletar_proposta(request, pk):
 class ClientesView(LoginRequiredMixin,ListView):
     model = Cliente
     context_object_name = "clientes"
-    paginate_by = 40
+    paginate_by = 10
     ordering = ["-atualizacao"]
     template_name = "clientes.html"
 
@@ -455,7 +455,7 @@ def deletar_cliente(request, pk):
 class UsersView(LoginRequiredMixin,ListView):
     model = User
     context_object_name = "usuarios"
-    paginate_by = 20
+    paginate_by = 10
     template_name = "usuarios.html"
 
     def get_queryset(self):
@@ -563,7 +563,7 @@ def alterar_usuario(request, pk):
 class ServicosView(LoginRequiredMixin,ListView):
     model = Servico
     context_object_name = "servicos"
-    paginate_by = 200
+    paginate_by = 10
     ordering = ["-atualizacao"]
     template_name = "servicos.html"
 
@@ -668,7 +668,7 @@ def deletar_servico(request, pk):
 class ModelosView(LoginRequiredMixin,ListView):
     model = Modelo
     context_object_name = "modelos"
-    paginate_by = 20
+    paginate_by = 10
     template_name = "modelos.html"
 
     def get_queryset(self):

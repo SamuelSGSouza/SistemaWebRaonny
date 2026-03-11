@@ -98,7 +98,7 @@
                         <th>ID</th>
                         <th>Título</th>
                         <th>Status</th>
-                        <th>Usuário</th>
+                        <th>Usuário Responsável</th>
                         <th>Cliente</th>
                         <th>Número da Proposta</th>
                         <th class="text-center">Ações</th>
@@ -118,7 +118,7 @@
                                 {{ proposta.get_status_display }}
                             </span>
                         </td>
-                        <td>{{ proposta.user }}</td>
+                        <td>{{ proposta.usuario_responsavel.first_name }}</td>
                         <td>{{ proposta.cliente.nome }}</td>
                         <td>{{ proposta.numero_proposta }}</td>
                         <td class="text-center">
